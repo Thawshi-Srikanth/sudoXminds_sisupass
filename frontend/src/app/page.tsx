@@ -38,26 +38,30 @@ const sampleTransactions = [
     amount: 60.0,
     type: "sending",
   },
+
+  {
+    id: "TXN12345678s",
+    date: "2025-08-12",
+    amount: 120.0,
+    type: "topup",
+  },
+  {
+    id: "TXN12345679s",
+    date: "2025-08-11",
+    amount: 45.0,
+    type: "spending",
+  },
+  {
+    id: "TXN12345680s",
+    date: "2025-08-10",
+    amount: 60.0,
+    type: "sending",
+  },
 ];
 
 export default function Home() {
   return (
     <>
-      <div className="col-span-6 flex justify-between">
-        <Button variant="ghost" size="icon" className="size-12 ">
-          <Menu width={24} height={24} />
-        </Button>
-
-        <div>
-          <Button variant="ghost" size="icon" className="size-12 ">
-            <BellDot width={24} height={24} />
-          </Button>
-          <Button variant="ghost" size="icon" className="size-12 ">
-            <UserRound width={24} height={24} />
-          </Button>
-        </div>
-      </div>
-
       <div className="col-span-6 flex justify-between flex-col px-2">
         <h1 className="scroll-m-20  text-2xl font-bold text-balance">
           Hello Thawshi
@@ -145,7 +149,6 @@ export default function Home() {
           <p className=" text-sm tracking-wide text-center">SiSu Slots</p>
         </div>
       </div>
-
       <div className="col-span-6 flex flex-1 justify-between flex-col">
         <TransactionList transactions={sampleTransactions} />
       </div>
