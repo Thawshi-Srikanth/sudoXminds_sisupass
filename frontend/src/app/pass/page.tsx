@@ -1,11 +1,5 @@
 import {
-  Menu,
-  BellDot,
-  UserRound,
-  ArrowUpRight,
-  DollarSign,
-  Wallet,
-  CalendarClock,
+  PlusIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,63 +10,30 @@ import {
   CreditCardExpiry,
   CreditCardName,
 } from "@/components/ui/credit-card";
-import { CardStack } from "@/components/ui/card-stack";
-import { TransactionList } from "@/components/portal/transection-list";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
-const sampleTransactions = [
-  {
-    id: "TXN12345678",
-    date: "2025-08-12",
-    amount: 120.0,
-    type: "topup",
-  },
-  {
-    id: "TXN12345679",
-    date: "2025-08-11",
-    amount: 45.0,
-    type: "spending",
-  },
-  {
-    id: "TXN12345680",
-    date: "2025-08-10",
-    amount: 60.0,
-    type: "sending",
-  },
-
-  {
-    id: "TXN12345678s",
-    date: "2025-08-12",
-    amount: 120.0,
-    type: "topup",
-  },
-  {
-    id: "TXN12345679s",
-    date: "2025-08-11",
-    amount: 45.0,
-    type: "spending",
-  },
-  {
-    id: "TXN12345680s",
-    date: "2025-08-10",
-    amount: 60.0,
-    type: "sending",
-  },
-];
 
 export default function Home() {
   return (
     <>
-      <div className="col-span-6 flex justify-between flex-col px-2">
-        <h1 className="scroll-m-20  text-2xl font-bold text-balance">
+      <div className="col-span-6 flex justify-between w-full px-2">
+        <div className="flex justify-between flex-col">
+          <h1 className="scroll-m-20  text-2xl font-bold text-balance">
           Your Passes
         </h1>
         <p className=" text-base tracking-wide">Manage all your passes here.</p>
+          </div>
+           <div className="col-span-6 flex px-4 justify-between ">
+        <Button variant="muted" size="icon" className="size-12" >
+          <PlusIcon width={24} height={24} />
+        </Button>
+      </div>
+        
       </div>
 
       <div className="col-span-6 flex justify-between flex-col">
-        <ScrollArea>
-          <div className="flex flex-col divide-y w-full  gap-4">
+        <ScrollArea className="h-[calc(100vh-200px)] w-full">
+          <div className="flex flex-col h-full divide-y w-full  gap-4">
             <CreditCard>
               <CreditCardBack className=" bg-primary text-background ">
                 <div className="flex flex-col justify-between h-full p-4">
@@ -126,32 +87,7 @@ export default function Home() {
           </div>
         </ScrollArea>
       </div>
-      <div className="col-span-6 flex px-4 justify-between ">
-        <div className="flex flex-col gap-2 items-center justify-center">
-          <Button variant="muted" size="icon" className=" size-12">
-            <ArrowUpRight width={24} height={24} />
-          </Button>
-          <p className=" text-sm tracking-wide text-center">Send</p>
-        </div>
-        <div className="flex flex-col gap-2 items-center justify-center">
-          <Button variant="muted" size="icon" className=" size-12">
-            <DollarSign width={24} height={24} />
-          </Button>
-          <p className=" text-sm tracking-wide text-center">Top Up</p>
-        </div>
-        <div className="flex flex-col gap-2 items-center justify-center">
-          <Button variant="muted" size="icon" className=" size-12">
-            <Wallet width={24} height={24} />
-          </Button>
-          <p className=" text-sm tracking-wide text-center">Passes</p>
-        </div>
-        <div className="flex flex-col gap-2 items-center justify-center">
-          <Button variant="secondary" size="icon" className=" w-24 h-12">
-            <CalendarClock width={24} height={24} />
-          </Button>
-          <p className=" text-sm tracking-wide text-center">SiSu Slots</p>
-        </div>
-      </div>
+     
     </>
   );
 }
