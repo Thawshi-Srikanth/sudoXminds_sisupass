@@ -1,29 +1,26 @@
 {
-  "name": "SiSu Pass Dev",
-  "dockerComposeFile": "docker-compose.yml",
-  "service": "dev",
-  "workspaceFolder": "/workspace",
-  "features": {
-    "ghcr.io/devcontainers/features/node:1": {
-      "version": "20",
-      "packageManager": "pnpm"
+    "name": "Go + Next.js + PostgreSQL Dev Container",
+    "dockerComposeFile": "./docker-compose.yml",
+    "service": "app",
+    "workspaceFolder": "/workspace",
+    "forwardPorts": [
+        3000,
+        8080,
+        5432
+    ],
+    "remoteUser": "vscode",
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "terminal.integrated.shell.linux": "/bin/bash"
+            },
+            "extensions": [
+                "golang.go",
+                "esbenp.prettier-vscode",
+                "dbaeumer.vscode-eslint",
+                "ms-azuretools.vscode-docker"
+            ]
+        }
     },
-    "ghcr.io/devcontainers/features/go:1": {
-      "version": "1.24"
-    }
-  },
-  "customizations": {
-    "vscode": {
-      "settings": {
-        "terminal.integrated.shell.linux": "/bin/bash"
-      },
-      "extensions": [
-        "esbenp.prettier-vscode",
-        "golang.go",
-        "bradlc.vscode-tailwindcss",
-        "dbaeumer.vscode-eslint"
-      ]
-    }
-  },
-  "postCreateCommand": "pnpm install --prefix frontend && go mod tidy && go install ./backend/..."
+    "postCreateCommand": "pnpm install && go mod download",
 }
