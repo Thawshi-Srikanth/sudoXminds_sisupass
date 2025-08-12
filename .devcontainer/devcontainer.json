@@ -1,5 +1,5 @@
 {
-    "name": "Go + Next.js + PostgreSQL Dev Container",
+    "name": "SiSU Pass",
     "dockerComposeFile": "./docker-compose.yml",
     "service": "app",
     "workspaceFolder": "/workspace",
@@ -12,15 +12,15 @@
     "customizations": {
         "vscode": {
             "settings": {
-                "terminal.integrated.shell.linux": "/bin/bash"
+                "terminal.integrated.defaultProfile.linux": "bash"
             },
             "extensions": [
                 "golang.go",
                 "esbenp.prettier-vscode",
                 "dbaeumer.vscode-eslint",
-                "ms-azuretools.vscode-docker"
+                "ms-azuretools.vscode-docker",
+                "ms-azuretools.vscode-containers"
             ]
         }
-    },
-    "postCreateCommand": "pnpm install && go mod download",
+    }
 }
