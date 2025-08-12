@@ -17,6 +17,28 @@ import {
   CreditCardName,
 } from "@/components/ui/credit-card";
 import { CardStack } from "@/components/ui/card-stack";
+import { TransactionList } from "@/components/portal/transection-list";
+
+const sampleTransactions = [
+  {
+    id: "TXN12345678",
+    date: "2025-08-12",
+    amount: 120.0,
+    type: "topup",
+  },
+  {
+    id: "TXN12345679",
+    date: "2025-08-11",
+    amount: 45.0,
+    type: "spending",
+  },
+  {
+    id: "TXN12345680",
+    date: "2025-08-10",
+    amount: 60.0,
+    type: "sending",
+  },
+];
 
 export default function Home() {
   return (
@@ -122,6 +144,10 @@ export default function Home() {
           </Button>
           <p className=" text-sm tracking-wide text-center">SiSu Slots</p>
         </div>
+      </div>
+
+      <div className="col-span-6 flex flex-1 justify-between flex-col">
+        <TransactionList transactions={sampleTransactions} />
       </div>
     </>
   );
