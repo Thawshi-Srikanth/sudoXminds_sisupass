@@ -1,17 +1,29 @@
+"use client";
+
+import { useState } from "react";
 import { ExpDatePicker } from "@/components/portal/pass/exp-date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { AvatarMultiSelect } from "@/components/portal/pass/avatar-select";
+
+const users = [
+  { label: "Thawshi Krish", value: "TK" },
+  { label: "Thawshi Srikanth", value: "TS" },
+  { label: "Jane Doe", value: "JD" },
+];
 
 export default function Home() {
+  const [selected, setSelected] = useState<string[]>([]);
+
   return (
     <>
       <div className="col-span-6 flex justify-between w-full px-2">
         <div className="flex justify-between flex-col">
           <h1 className="scroll-m-20  text-2xl font-bold text-balance">
-            Your Passes
+            Add New Pass
           </h1>
           <p className=" text-base tracking-wide">
-            Manage all your passes here.
+            Fill out the form to create a new pass.
           </p>
         </div>
       </div>
@@ -24,6 +36,15 @@ export default function Home() {
 
           <div className="col-span-2 grid w-full  items-center gap-3">
             <ExpDatePicker />
+          </div>
+
+          <div className="col-span-2 grid w-full  items-center gap-3">
+            <Label htmlFor="pass-holder">Pass Holder</Label>
+            <AvatarMultiSelect
+              options={users}
+              value={selected}
+              onChange={setSelected}
+            />
           </div>
         </div>
       </div>
