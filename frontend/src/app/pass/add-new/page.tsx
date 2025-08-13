@@ -6,6 +6,24 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AvatarMultiSelect } from "@/components/portal/pass/avatar-select";
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import PassCard from "./pass-card";
+
 const users = [
   { label: "Thawshi Krish", value: "TK" },
   { label: "Thawshi Srikanth", value: "TS" },
@@ -47,6 +65,10 @@ export default function Home() {
             />
           </div>
         </div>
+      </div>
+
+      <div className="col-span-6 flex flex-1 h-full  w-full ">
+        <PassCard />
       </div>
     </>
   );
