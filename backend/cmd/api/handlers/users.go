@@ -21,7 +21,7 @@ import (
 // @Failure		400		{object}	map[string]interface{}		"Bad request"
 // @Failure		422		{object}	map[string]interface{}		"Validation failed"
 // @Failure		500		{object}	map[string]interface{}		"Internal server error"
-// @Router			/users/register [post]
+// @Router			/api/v1/users/register [post]
 func RegisterUser(app *appPkg.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var input services.CreateUserRequest
@@ -91,7 +91,7 @@ func RegisterUser(app *appPkg.Application) http.HandlerFunc {
 // @Failure		422		{object}	map[string]interface{}	"Validation failed"
 // @Failure		500		{object}	map[string]interface{}	"Internal server error"
 // @Security		Bearer
-// @Router			/users [get]
+// @Router			/api/v1/users [get]
 func GetUser(app *appPkg.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		email := r.URL.Query().Get("email")
@@ -135,7 +135,7 @@ func GetUser(app *appPkg.Application) http.HandlerFunc {
 // @Failure		404		{object}	map[string]interface{}	"User not found"
 // @Failure		422		{object}	map[string]interface{}	"Validation failed"
 // @Failure		500		{object}	map[string]interface{}	"Internal server error"
-// @Router			/auth/password-reset [post]
+// @Router			/api/v1/auth/password-reset [post]
 func SendPasswordResetEmail(app *appPkg.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var input struct {

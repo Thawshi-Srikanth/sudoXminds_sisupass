@@ -15,6 +15,7 @@ type UserRepository interface {
 	Create(user *types.User) error
 	Update(user *types.User) error
 	Delete(id string) error
+	FindOrCreateFromGoogle(googleUser *types.GoogleUser) (*types.User, error)
 }
 
 type TokenRepository interface {

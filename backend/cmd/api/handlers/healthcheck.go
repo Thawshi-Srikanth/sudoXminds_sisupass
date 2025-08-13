@@ -12,7 +12,7 @@ import (
 // @Tags			System
 // @Produce		json
 // @Success		200	{object}	map[string]interface{}	"API is healthy"
-// @Router			/health [get]
+// @Router			/api/v1/health [get]
 func Healthcheck(app *app.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		env := map[string]any{

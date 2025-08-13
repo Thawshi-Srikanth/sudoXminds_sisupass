@@ -26,6 +26,8 @@ func SetupRoutes(app *app.Application) *chi.Mux {
 		r.Post("/password-reset", handlers.SendPasswordResetEmail(app))
 		r.Put("/activate", handlers.ActivateUser(app))
 		r.Put("/password", handlers.UpdateUserPassword(app))
+		r.Get("/google/login", handlers.GoogleLogin(app))
+		r.Get("/google/callback", handlers.GoogleCallback(app))
 	})
 
 	return r

@@ -216,3 +216,42 @@ func (r *UserRepository) GetForToken(tokenScope, tokenPlainText string) (*types.
 	user.Password = types.NewPasswordFromHash(passwordHash)
 	return &user, nil
 }
+
+func (r *UserRepository) FindOrCreateFromGoogle(googleUser *types.GoogleUser) (*types.User, error) {
+	// First, try to find existing user by email
+	existingUser, err := r.GetByEmail(googleUser.Email)
+	if err == nil {
+		// User exists, update their information if needed
+		existingUser.Activated = true // Google users are automatically activated
+		err = r.Update(existingUser)
+		if err != nil {
+			return nil, err
+		}
+		return existingUser, nil
+	} else if !errors.Is(err, types.ErrRecordNotFound) {
+		return nil, err
+	}
+
+	// User doesn't exist, create a new one
+	user := &types.User{
+		UserName:              googleUser.Name,
+		Email:                 googleUser.Email,
+		UserType:              "user",
+		Activated:             true, // Google users are automatically activated
+		AuthenticationMethods: "google",
+		Version:               1,
+	}
+
+	// Set a placeholder password (Google users don't need password login)
+	err = user.Password.Set("oauth_google_user_no_password")
+	if err != nil {
+		return nil, err
+	}
+
+	err = r.Create(user)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}

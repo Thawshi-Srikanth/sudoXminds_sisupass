@@ -15,6 +15,18 @@ var (
 	ErrEditConflict       = errors.New("edit conflict")
 )
 
+// GoogleUser represents user data from Google OAuth
+type GoogleUser struct {
+	ID            string `json:"id"`
+	Email         string `json:"email"`
+	VerifiedEmail bool   `json:"verified_email"`
+	Name          string `json:"name"`
+	GivenName     string `json:"given_name"`
+	FamilyName    string `json:"family_name"`
+	Picture       string `json:"picture"`
+	Locale        string `json:"locale"`
+}
+
 type Password struct {
 	plaintext *string
 	hash      []byte

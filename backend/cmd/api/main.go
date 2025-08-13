@@ -6,7 +6,7 @@
 //	Title:			SisuPass API
 //	Description:	SisuPass authentication and user management API
 //	Version:		1.0.0
-//	Host:			localhost:4000
+//	Host:			localhost:4000/api/v1
 //	BasePath:		/api/v1
 //	Contact:		SisuPass Team <support@sisupass.com>
 //
@@ -76,19 +76,22 @@ func main() {
 
 	mailSender := mailer.New(cfg.SMTP.Host, cfg.SMTP.Port, cfg.SMTP.Username, cfg.SMTP.Password, cfg.SMTP.Sender)
 
+	googleOAuthConfig := cfg.InitGoogleOAuth()
+
 	appServies := &app.Services{
 		Users:  services.NewUserService(&models),
 		Tokens: services.NewTokenService(&models),
 		Mail:   services.NewMailService(mailSender, cfg.FrontendURL),
+		OAuth:  services.NewOAuthService(&models, googleOAuthConfig, cfg.FrontendURL),
 	}
 
 	app := &app.Application{
-		Config:   cfg,
-		Logger:   logger,
-		Models:   models,
-		Services: appServies,
-		Mailer:   mailSender,
-		// GoogleOAuthConfig: cfg.InitGoogleOAuth(),
+		Config:            cfg,
+		Logger:            logger,
+		Models:            models,
+		Services:          appServies,
+		Mailer:            mailSender,
+		GoogleOAuthConfig: googleOAuthConfig,
 	}
 
 	err = server.Serve(app)
