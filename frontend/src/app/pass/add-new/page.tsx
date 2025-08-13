@@ -1,3 +1,4 @@
+import { ExpDatePicker } from "@/components/portal/pass/exp-date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -15,15 +16,14 @@ export default function Home() {
         </div>
       </div>
       <div className="col-span-6 flex justify-between w-full px-2">
-        <div className="grid grid-cols-4 w-full">
+        <div className="grid grid-cols-4 w-full gap-3">
           <div className="col-span-4 grid w-full  items-center gap-3">
             <Label htmlFor="email">Name</Label>
             <Input type="name" id="name" placeholder="Name" />
           </div>
 
-          <div className="col-span-4 grid w-full  items-center gap-3">
-            <Label htmlFor="email">Exp</Label>
- 
+          <div className="col-span-2 grid w-full  items-center gap-3">
+            <ExpDatePicker />
           </div>
         </div>
       </div>
