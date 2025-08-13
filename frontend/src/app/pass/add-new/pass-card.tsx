@@ -18,6 +18,7 @@ import {
 import { ComboBox } from "@/components/ui/combobox";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { NfcQrDrawer } from "./nfc-qr-drawer";
 
 // Separate options for each pass type
 const busStops = [
@@ -150,7 +151,10 @@ export default function PassCard() {
         </CardContent>
 
         <CardFooter className="px-0">
-          <Button className="w-full shadow-none">Create Pass</Button>
+          <NfcQrDrawer
+            serverNfcData="https://sisupass.com/pass/123s"
+            serverQrData="https://sisupass.com/pass/123"
+          />
         </CardFooter>
       </Card>
     </div>
