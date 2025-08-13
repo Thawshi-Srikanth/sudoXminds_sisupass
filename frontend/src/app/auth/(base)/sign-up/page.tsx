@@ -8,35 +8,31 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Form, FormField } from "@/components/ui/form";
 import { PasswordInput } from "@/components/ui/password-input";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSeparator,
-  InputOTPSlot,
-} from "@/components/ui/input-otp";
 
 export default function SigninPage() {
   const form = useForm<{
-    otp: string;
+    username: string;
+    password: string;
+    confirmPassword: string;
   }>();
 
-  const onSubmit = (data: { otp: string }) => {
-    console.log("Otp data:", data);
+  const onSubmit = (data: { username: string; password: string }) => {
+    console.log("Login data:", data);
   };
 
   return (
     <div className="flex flex-col w-full flex-1">
       {/* Top image section */}
-      <div className="w-full flex min-h-[400px] bg-secondary relative overflow-hidden">
+      <div className="w-full flex min-h-[350px] bg-secondary relative overflow-hidden">
         <motion.div
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
-          className="absolute right-0 aspect-[2.5/2.9] bottom-0 h-[250px] z-10"
+          className="absolute right-2 aspect-[1.5/2] bottom-0 h-[250px] z-10"
         >
           <Image
-            src="/static/images/verification-girl.png"
-            alt="verification-girl"
+            src="/static/images/sign-up-form-boy.png"
+            alt="sign-up-form-boy"
             fill
             priority
             sizes="x2"
@@ -55,11 +51,11 @@ export default function SigninPage() {
           }}
         >
           <h1 className="scroll-m-20 text-5xl font-bold text-balance text-background">
-            It’s hiding
+            This is the
             <br />
-            in your
+            best day
             <br />
-            inbox…
+            ever!
           </h1>
         </motion.div>
 
@@ -107,10 +103,10 @@ export default function SigninPage() {
         >
           <div className="col-span-6 flex justify-between flex-col px-2 w-full h-full">
             <h1 className="scroll-m-20  text-2xl font-bold text-balance">
-              Verify your email
+              Almost There!
             </h1>
             <p className=" text-base tracking-wide">
-              Code has been set to you email.
+              Enter your details to create your wallet.
             </p>
           </div>
           <div className="col-span-6 flex justify-between flex-col px-2 w-full h-full">
@@ -121,43 +117,52 @@ export default function SigninPage() {
               >
                 <FormField
                   control={form.control}
-                  name="otp"
+                  name="username"
                   render={({ field }) => (
                     <div className="flex flex-col gap-3">
-                      <InputOTP className="h-12" {...field} maxLength={6}>
-                        <InputOTPGroup>
-                          <InputOTPSlot index={0} />
-                          <InputOTPSlot index={1} />
-                          <InputOTPSlot index={2} />
-                        </InputOTPGroup>
-                        <InputOTPSeparator />
-                        <InputOTPGroup>
-                          <InputOTPSlot index={3} />
-                          <InputOTPSlot index={4} />
-                          <InputOTPSlot index={5} />
-                        </InputOTPGroup>
-                      </InputOTP>
+                      <Label>Username</Label>
+                      <Input
+                        placeholder="Enter username"
+                        className="h-12"
+                        {...field}
+                      />
                     </div>
                   )}
                 />
 
-                <p className=" text-base tracking-wide">
-                  sent to your email abc*****@email.com
-                </p>
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <div className="flex flex-col gap-3">
+                      <Label>Password</Label>
+                      <PasswordInput
+                        className="h-12"
+                        placeholder="Enter password"
+                        {...field}
+                      />
+                    </div>
+                  )}
+                />
 
-                <div className="grid grid-cols-2 justify-between flex-col p-x w-full">
-                  <Button
-                    type="submit"
-                    size="lg"
-                    variant="ghost"
-                    className="w-full mt-5 p-2 text-left justify-start"
-                  >
-                    Resend email
-                  </Button>
-                  <Button type="submit" size="lg" className="w-full mt-5">
-                    Verify
-                  </Button>
-                </div>
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <div className="flex flex-col gap-3">
+                      <Label>Confirm Password</Label>
+                      <PasswordInput
+                        className="h-12"
+                        placeholder="Enter password"
+                        {...field}
+                      />
+                    </div>
+                  )}
+                />
+
+                <Button type="submit" size="xl" className="w-full mt-5">
+                  Sign Up
+                </Button>
               </form>
             </Form>
           </div>
