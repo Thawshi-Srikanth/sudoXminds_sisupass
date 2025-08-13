@@ -59,9 +59,9 @@ export function AvatarMultiSelect({
         >
           {/* Avatar stack */}
           <AvatarStack>
-            <Button variant="muted" size="icon" className="size-full ">
+            <span className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none  shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-accent/50 hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 size-full">
               <PlusIcon width={24} height={24} />
-            </Button>
+            </span>
             {value.length > 0 &&
               value.map((val) => {
                 const opt = getOption(val);
