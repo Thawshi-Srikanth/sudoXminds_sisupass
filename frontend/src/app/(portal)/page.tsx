@@ -17,7 +17,7 @@ import {
   CreditCardName,
 } from "@/components/ui/credit-card";
 import { CardStack } from "@/components/ui/card-stack";
-import { TransactionList } from "@/components/portal/transection-list";
+import { TransactionList } from "@/components/portal/transaction-list";
 
 const sampleTransactions = [
   {
