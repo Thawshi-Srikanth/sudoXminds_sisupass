@@ -29,25 +29,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${jetbrains.variable} antialiased relative max-h-dvh flex flex-col items-center justify-start`}
       >
-        <div className="max-w-[640px] grid grid-cols-6 gap-x-4 gap-y-6 p-6 pb-3 w-full bg-background sticky top-0">
-          <div className="col-span-6 flex justify-between">
-            <Button variant="ghost" size="icon" className="size-12 ">
-              <Menu width={24} height={24} />
-            </Button>
-
-            <div>
-              <Button variant="ghost" size="icon" className="size-12 ">
-                <BellDot width={24} height={24} />
-              </Button>
-              <Button variant="ghost" size="icon" className="size-12 ">
-                <UserRound width={24} height={24} />
-              </Button>
-            </div>
-          </div>
-        </div>
-        <div className="max-w-[640px] grid grid-cols-6 gap-x-4 gap-y-6 p-6 pt-3 w-full max-h-dvh h-full">
-          {children}
-        </div>
+        {children}
       </body>
     </html>
   );
