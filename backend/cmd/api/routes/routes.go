@@ -3,6 +3,7 @@ package routes
 import (
 	"github.com/go-chi/chi/v5"
 	"sisupass.com/sisupass/cmd/api/app"
+	"sisupass.com/sisupass/cmd/api/handlers"
 )
 
 func SetupRoutes(app *app.Application) *chi.Mux {

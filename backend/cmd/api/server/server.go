@@ -17,7 +17,6 @@ import (
 func Serve(app *app.Application) error {
 	srv := &http.Server{
 		Addr: fmt.Sprintf(":%d", app.Config.Port),
-		// handlers / router chi
 		Handler:      routes.SetupRoutes(app),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,

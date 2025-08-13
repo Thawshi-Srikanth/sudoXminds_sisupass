@@ -8,7 +8,6 @@ import (
 	"github.com/pressly/goose/v3"
 )
 
-// MigrateFS runs migrations using an embedded filesystem
 func MigrateFS(db *sql.DB, migrationsFS fs.FS, dir string) error {
 	goose.SetBaseFS(migrationsFS)
 	defer func() {
@@ -17,7 +16,6 @@ func MigrateFS(db *sql.DB, migrationsFS fs.FS, dir string) error {
 	return Migrate(db, dir)
 }
 
-// Migrate runs database migrations
 func Migrate(db *sql.DB, dir string) error {
 	err := goose.SetDialect("postgres")
 	if err != nil {
@@ -32,7 +30,6 @@ func Migrate(db *sql.DB, dir string) error {
 	return nil
 }
 
-// Down rolls back migrations
 func Down(db *sql.DB, dir string) error {
 	err := goose.SetDialect("postgres")
 	if err != nil {
@@ -47,7 +44,6 @@ func Down(db *sql.DB, dir string) error {
 	return nil
 }
 
-// Status shows migration status
 func Status(db *sql.DB, dir string) error {
 	err := goose.SetDialect("postgres")
 	if err != nil {

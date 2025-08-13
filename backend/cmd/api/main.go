@@ -4,10 +4,13 @@ import (
 	"flag"
 	"os"
 
+	"sisupass.com/sisupass/cmd/api/app"
 	appconfig "sisupass.com/sisupass/cmd/api/config"
 	"sisupass.com/sisupass/cmd/api/server"
+	"sisupass.com/sisupass/internal/data"
 	"sisupass.com/sisupass/internal/jsonlog"
 	"sisupass.com/sisupass/internal/migrate"
+	"sisupass.com/sisupass/internal/services"
 	"sisupass.com/sisupass/migrations"
 )
 
@@ -53,7 +56,7 @@ func main() {
 		Logger:            logger,
 		Models:            models,
 		Services:          appServies,
-		GoogleOAuthConfig: cfg.InitGoogleOAuth(),
+		// GoogleOAuthConfig: cfg.InitGoogleOAuth(),
 	}
 
 	err = server.Serve(app)
