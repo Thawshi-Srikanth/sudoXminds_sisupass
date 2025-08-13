@@ -38,12 +38,12 @@ export default function Home() {
               <CreditCardBack className=" bg-primary text-background ">
                 <div className="flex flex-col justify-between h-full p-4">
                   <CreditCardName className="flex-1">Buss Pass</CreditCardName>
-                  <CreditCardBalance className="flex flex-col flex-1">
-                    <span className=" text-base tracking-wide">Balance</span>
+                  <CreditCardBalance className="flex flex-col flex-1 text-background">
+                    <span className=" text-base tracking-wide ">Balance</span>
                     Rs. 10,000.00
                   </CreditCardBalance>
 
-                  <div className="flex justify-between gap-4">
+                  <div className="flex justify-between gap-4 text-background">
                     <CreditCardExpiry>01/24</CreditCardExpiry>
                     <CreditCardCvv>123</CreditCardCvv>
                   </div>
