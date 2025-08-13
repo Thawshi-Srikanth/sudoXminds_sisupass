@@ -10,7 +10,11 @@ import { Form, FormField } from "@/components/ui/form";
 import { PasswordInput } from "@/components/ui/password-input";
 
 export default function SigninPage() {
-  const form = useForm<{ username: string; password: string }>();
+  const form = useForm<{
+    username: string;
+    password: string;
+    confirmPassword: string;
+  }>();
 
   const onSubmit = (data: { username: string; password: string }) => {
     console.log("Login data:", data);
@@ -24,11 +28,11 @@ export default function SigninPage() {
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
-          className="absolute right-10 aspect-[2.2/2.8] bottom-0 h-[300px] z-10"
+          className="absolute right-2 aspect-[1.5/2] bottom-0 h-[250px] z-10"
         >
           <Image
-            src="/static/images/sign-in-form-girl.png"
-            alt="sign-in-form-girl"
+            src="/static/images/verification-girl.png"
+            alt="verification-girl"
             fill
             priority
             sizes="x2"
@@ -47,11 +51,11 @@ export default function SigninPage() {
           }}
         >
           <h1 className="scroll-m-20 text-5xl font-bold text-balance text-background">
-            Smart ID,
-            <br/>
-            Safe
-            <br/>
-            Usage.
+            It’s hiding
+            <br />
+            in your
+            <br />
+            inbox…
           </h1>
         </motion.div>
 
@@ -61,7 +65,12 @@ export default function SigninPage() {
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
           className="absolute aspect-[3.5/2] h-[200px] top-1/2 left-1/2 -translate-y-1/2 flex items-end justify-end"
         >
-          <Image src="/static/images/card-noise.png" alt="card-noise" fill sizes="x1"/>
+          <Image
+            src="/static/images/card-noise.png"
+            alt="card-noise"
+            fill
+            sizes="x1"
+          />
         </motion.div>
 
         <motion.div
@@ -75,7 +84,12 @@ export default function SigninPage() {
           }}
           className="absolute aspect-[3.5/2] h-[200px] top-1/2 left-1/2 -translate-y-1/2 flex items-end justify-end"
         >
-          <Image src="/static/images/card-noise.png" alt="card-noise" fill sizes="x1"/>
+          <Image
+            src="/static/images/card-noise.png"
+            alt="card-noise"
+            fill
+            sizes="x1"
+          />
         </motion.div>
       </div>
 
@@ -89,10 +103,10 @@ export default function SigninPage() {
         >
           <div className="col-span-6 flex justify-between flex-col px-2 w-full h-full">
             <h1 className="scroll-m-20  text-2xl font-bold text-balance">
-              Ready to Tap & Go?
+              Almost There!
             </h1>
             <p className=" text-base tracking-wide">
-              Enter your details to access your pass.
+              Enter your details to create your wallet.
             </p>
           </div>
           <div className="col-span-6 flex justify-between flex-col px-2 w-full h-full">
@@ -131,8 +145,23 @@ export default function SigninPage() {
                   )}
                 />
 
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <div className="flex flex-col gap-3">
+                      <Label>Confirm Password</Label>
+                      <PasswordInput
+                        className="h-12"
+                        placeholder="Enter password"
+                        {...field}
+                      />
+                    </div>
+                  )}
+                />
+
                 <Button type="submit" size="xl" className="w-full mt-5">
-                  Sign In
+                  Sign Up
                 </Button>
               </form>
             </Form>

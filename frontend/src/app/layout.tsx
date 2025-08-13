@@ -27,7 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${jetbrains.variable} antialiased max-h-lvh overflow-hidden`}>
+      <body className={`${inter.variable} ${jetbrains.variable} antialiased max-h-lvh`}>
         <ScrollArea className="relative max-h-lvh flex flex-col items-center justify-start">
           {children}
         </ScrollArea>
