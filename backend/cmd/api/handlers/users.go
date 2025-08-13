@@ -10,6 +10,18 @@ import (
 	"sisupass.com/sisupass/internal/validator"
 )
 
+// RegisterUser registers a new user account
+// @Summary		Register new user
+// @Description	Register a new user account and send activation email
+// @Tags			Users
+// @Accept			json
+// @Produce		json
+// @Param			request	body		services.CreateUserRequest	true	"User registration data"
+// @Success		201		{object}	map[string]interface{}		"User created successfully"
+// @Failure		400		{object}	map[string]interface{}		"Bad request"
+// @Failure		422		{object}	map[string]interface{}		"Validation failed"
+// @Failure		500		{object}	map[string]interface{}		"Internal server error"
+// @Router			/users/register [post]
 func RegisterUser(app *appPkg.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var input services.CreateUserRequest
@@ -66,6 +78,20 @@ func RegisterUser(app *appPkg.Application) http.HandlerFunc {
 	}
 }
 
+// GetUser retrieves a user by email
+// @Summary		Get user by email
+// @Description	Get user information by email address
+// @Tags			Users
+// @Accept			json
+// @Produce		json
+// @Param			email	query		string					true	"User email address"
+// @Success		200		{object}	map[string]interface{}	"User retrieved successfully"
+// @Failure		400		{object}	map[string]interface{}	"Bad request"
+// @Failure		404		{object}	map[string]interface{}	"User not found"
+// @Failure		422		{object}	map[string]interface{}	"Validation failed"
+// @Failure		500		{object}	map[string]interface{}	"Internal server error"
+// @Security		Bearer
+// @Router			/users [get]
 func GetUser(app *appPkg.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		email := r.URL.Query().Get("email")
@@ -97,6 +123,19 @@ func GetUser(app *appPkg.Application) http.HandlerFunc {
 	}
 }
 
+// SendPasswordResetEmail sends a password reset email
+// @Summary		Send password reset email
+// @Description	Send a password reset email to the specified email address
+// @Tags			Authentication
+// @Accept			json
+// @Produce		json
+// @Param			request	body		map[string]string		true	"Email address"	example({"email": "user@example.com"})
+// @Success		202		{object}	map[string]interface{}	"Password reset email sent"
+// @Failure		400		{object}	map[string]interface{}	"Bad request"
+// @Failure		404		{object}	map[string]interface{}	"User not found"
+// @Failure		422		{object}	map[string]interface{}	"Validation failed"
+// @Failure		500		{object}	map[string]interface{}	"Internal server error"
+// @Router			/auth/password-reset [post]
 func SendPasswordResetEmail(app *appPkg.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var input struct {

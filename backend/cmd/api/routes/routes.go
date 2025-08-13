@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/go-chi/chi/v5"
+	httpSwagger "github.com/swaggo/http-swagger"
 	"sisupass.com/sisupass/cmd/api/app"
 	"sisupass.com/sisupass/cmd/api/handlers"
 )
@@ -10,6 +11,11 @@ func SetupRoutes(app *app.Application) *chi.Mux {
 	r := chi.NewRouter()
 
 	r.Get("/health", handlers.Healthcheck(app))
+
+	// Swagger documentation
+	r.Get("/swagger/*", httpSwagger.Handler(
+		httpSwagger.URL("http://localhost:4000/swagger/doc.json"),
+	))
 
 	r.Route("/api/v1/users", func(r chi.Router) {
 		r.Post("/register", handlers.RegisterUser(app))
