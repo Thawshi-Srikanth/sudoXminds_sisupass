@@ -4,11 +4,13 @@ import (
 	"flag"
 	"os"
 
+	_ "github.com/lib/pq"
 	"sisupass.com/sisupass/cmd/api/app"
-	appconfig "sisupass.com/sisupass/cmd/api/config"
+	"sisupass.com/sisupass/cmd/api/config"
 	"sisupass.com/sisupass/cmd/api/server"
 	"sisupass.com/sisupass/internal/data"
 	"sisupass.com/sisupass/internal/jsonlog"
+	"sisupass.com/sisupass/internal/mailer"
 	"sisupass.com/sisupass/internal/migrate"
 	"sisupass.com/sisupass/internal/services"
 	"sisupass.com/sisupass/migrations"
@@ -18,7 +20,7 @@ func main() {
 	var runMigrations = flag.Bool("migrate", false, "Run database migrations")
 	flag.Parse()
 
-	cfg, err := appconfig.LoadConfig()
+	cfg, err := config.LoadConfig()
 	if err != nil {
 		panic(err)
 	}
@@ -46,16 +48,20 @@ func main() {
 
 	models := data.NewModels(db)
 
+	mailSender := mailer.New(cfg.SMTP.Host, cfg.SMTP.Port, cfg.SMTP.Username, cfg.SMTP.Password, cfg.SMTP.Sender)
+
 	appServies := &app.Services{
 		Users:  services.NewUserService(&models),
 		Tokens: services.NewTokenService(&models),
+		Mail:   services.NewMailService(mailSender, cfg.FrontendURL),
 	}
 
 	app := &app.Application{
-		Config:            cfg,
-		Logger:            logger,
-		Models:            models,
-		Services:          appServies,
+		Config:   cfg,
+		Logger:   logger,
+		Models:   models,
+		Services: appServies,
+		Mailer:   mailSender,
 		// GoogleOAuthConfig: cfg.InitGoogleOAuth(),
 	}
 

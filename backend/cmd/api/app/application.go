@@ -6,6 +6,7 @@ import (
 	"sisupass.com/sisupass/cmd/api/config"
 	"sisupass.com/sisupass/internal/data"
 	"sisupass.com/sisupass/internal/jsonlog"
+	"sisupass.com/sisupass/internal/mailer"
 	"sisupass.com/sisupass/internal/services"
 )
 
@@ -17,9 +18,11 @@ type Application struct {
 	WG       sync.WaitGroup
 	Models   data.Models
 	Services *Services
+	Mailer   mailer.Mailer
 }
 
 type Services struct {
 	Users  *services.UserService
 	Tokens *services.TokenService
+	Mail   *services.MailService
 }

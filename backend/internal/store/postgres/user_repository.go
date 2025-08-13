@@ -20,7 +20,7 @@ func NewUserRepository(db *sql.DB) repository.UserRepository {
 }
 
 func (r *UserRepository) GetByEmail(email string) (*types.User, error) {
-	query := `SELECT id, created_at, user_name, email, password_hash, user_type, activated version FROM users WHERE email = $1`
+	query := `SELECT id, created_at, user_name, email, password_hash, user_type, activated, version FROM users WHERE email = $1`
 
 	var user types.User
 	var passwordHash []byte
@@ -91,7 +91,7 @@ func (r *UserRepository) GetByID(id string) (*types.User, error) {
 
 func (r *UserRepository) Create(user *types.User) error {
 	// Implementation
-	query := `INSERT INTO users (user_name, email, password_hash, user_type, authentication_methods, activated, has_profile_created) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, created_at, version`
+	query := `INSERT INTO users (user_name, email, password_hash, user_type, authentication_methods, activated) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, created_at, version`
 
 	args := []any{user.UserName, user.Email, user.Password.Hash(), user.UserType, user.AuthenticationMethods, user.Activated}
 

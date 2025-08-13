@@ -16,5 +16,11 @@ func SetupRoutes(app *app.Application) *chi.Mux {
 		r.Get("/", handlers.GetUser(app))
 	})
 
+	r.Route("/api/v1/auth", func(r chi.Router) {
+		r.Post("/password-reset", handlers.SendPasswordResetEmail(app))
+		r.Put("/activate", handlers.ActivateUser(app))
+		r.Put("/password", handlers.UpdateUserPassword(app))
+	})
+
 	return r
 }

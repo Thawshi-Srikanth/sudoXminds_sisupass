@@ -14,14 +14,12 @@ func RegisterUser(app *appPkg.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var input services.CreateUserRequest
 
-		// 1. Parse request
 		err := app.ReadJSON(w, r, &input)
 		if err != nil {
 			app.BadRequestResponse(w, r, err)
 			return
 		}
 
-		// 2. Call service (all business logic handled here)
 		userResponse, err := app.Services.Users.CreateUser(r.Context(), input)
 		if err != nil {
 			switch {
@@ -38,10 +36,30 @@ func RegisterUser(app *appPkg.Application) http.HandlerFunc {
 			return
 		}
 
-		// 3. Send response
-		err = app.WriteJSON(w, http.StatusCreated, appPkg.Envelope{
-			"user": userResponse,
-		}, nil)
+		activationToken, err := app.Services.Tokens.CreateActivationToken(r.Context(), userResponse.ID)
+		if err != nil {
+			app.LogError(r, err)
+		} else {
+			app.WG.Add(1)
+			go func() {
+				defer app.WG.Done()
+				emailErr := app.Services.Mail.SendWelcomeEmail(r.Context(), userResponse.Email, userResponse.Username, activationToken.Plaintext)
+				if emailErr != nil {
+					app.Logger.PrintError(emailErr, map[string]string{
+						"operation": "send_welcome_email",
+						"user_id":   userResponse.ID.String(),
+						"email":     userResponse.Email,
+					})
+				}
+			}()
+		}
+
+		response := appPkg.Envelope{
+			"user":    userResponse,
+			"message": "User created successfully. Please check your email for activation instructions.",
+		}
+
+		err = app.WriteJSON(w, http.StatusCreated, response, nil)
 		if err != nil {
 			app.ServerErrorResponse(w, r, err)
 		}
@@ -72,6 +90,67 @@ func GetUser(app *appPkg.Application) http.HandlerFunc {
 
 		err = app.WriteJSON(w, http.StatusOK, appPkg.Envelope{
 			"user": userResponse,
+		}, nil)
+		if err != nil {
+			app.ServerErrorResponse(w, r, err)
+		}
+	}
+}
+
+func SendPasswordResetEmail(app *appPkg.Application) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var input struct {
+			Email string `json:"email"`
+		}
+
+		err := app.ReadJSON(w, r, &input)
+		if err != nil {
+			app.BadRequestResponse(w, r, err)
+			return
+		}
+
+		v := validator.New()
+		validator.ValidateEmail(v, input.Email)
+		if !v.Valid() {
+			app.FailedValidationResponse(w, r, v.Errors)
+			return
+		}
+
+		userResponse, err := app.Services.Users.GetUserByEmail(r.Context(), input.Email)
+		if err != nil {
+			switch {
+			case errors.Is(err, types.ErrRecordNotFound):
+				app.WriteJSON(w, http.StatusOK, appPkg.Envelope{
+					"message": "If that email address is in our database, you will receive a password reset email shortly.",
+				}, nil)
+				return
+			default:
+				app.ServerErrorResponse(w, r, err)
+				return
+			}
+		}
+
+		resetToken, err := app.Services.Tokens.CreatePasswordResetToken(r.Context(), userResponse.ID)
+		if err != nil {
+			app.ServerErrorResponse(w, r, err)
+			return
+		}
+
+		app.WG.Add(1)
+		go func() {
+			defer app.WG.Done()
+			emailErr := app.Services.Mail.SendPasswordResetEmail(r.Context(), userResponse.Email, userResponse.Username, resetToken.Plaintext)
+			if emailErr != nil {
+				app.Logger.PrintError(emailErr, map[string]string{
+					"operation": "send_password_reset_email",
+					"user_id":   userResponse.ID.String(),
+					"email":     userResponse.Email,
+				})
+			}
+		}()
+
+		err = app.WriteJSON(w, http.StatusOK, appPkg.Envelope{
+			"message": "If that email address is in our database, you will receive a password reset email shortly.",
 		}, nil)
 		if err != nil {
 			app.ServerErrorResponse(w, r, err)
