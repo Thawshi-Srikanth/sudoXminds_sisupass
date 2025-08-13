@@ -17,7 +17,7 @@ export default function RootLayout({
     <>
       <div className=" grid grid-cols-6 gap-x-4 gap-y-6 p-6 pb-3 w-full absolute top-0 z-1">
         <div className="col-span-6 flex justify-between">
-          <Button variant="ghost" size="icon" className="size-12 ">
+          <Button variant="ghost" size="icon" className="size-12 text-background">
             <ArrowLeft width={24} height={24} />
           </Button>
 
