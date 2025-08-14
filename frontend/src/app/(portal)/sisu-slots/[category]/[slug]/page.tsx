@@ -96,6 +96,8 @@ export default async function Page({
 
   const Icon = category.icon;
 
+  const isBooked = true;
+
   return (
     <>
       <div className="grid grid-cols-6 gap-x-4 gap-y-6 p-6 w-full mb-30 h-full">
@@ -176,10 +178,21 @@ export default async function Page({
         </div>
       </div>
 
-      <div className="fixed bottom-0 flex flex-col p-8 border-t  z-50 h-30 item-center justify-center w-full gap-3 bg-background">
-        <Button className=" w-full" variant="secondary" size="lg">
-          Register
-        </Button>
+      <div className="fixed bottom-0 flex p-8 border-t z-50 h-30 items-center justify-center w-full gap-3 bg-background">
+        {isBooked ? (
+          <>
+            <Button className="flex-1" variant="destructive" size="lg">
+              Cancel
+            </Button>
+            <Button className="flex-2" variant="secondary" size="lg">
+              View Qr
+            </Button>
+          </>
+        ) : (
+          <Button className="w-full" variant="secondary" size="lg">
+            Register
+          </Button>
+        )}
       </div>
     </>
   );
