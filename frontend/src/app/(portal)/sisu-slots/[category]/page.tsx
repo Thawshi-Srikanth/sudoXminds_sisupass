@@ -16,6 +16,8 @@ import {
   Bus,
   Home,
 } from "lucide-react"; // import your icons
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 // Categories array
 const categories = [
@@ -96,27 +98,7 @@ const sampleTransactions = [
     amount: 60.0,
     type: "sending",
   },
-
-  {
-    id: "TXN12345678s",
-    date: "2025-08-12",
-    amount: 120.0,
-    type: "topup",
-  },
-  {
-    id: "TXN12345679s",
-    date: "2025-08-11",
-    amount: 45.0,
-    type: "spending",
-  },
-  {
-    id: "TXN12345680s",
-    date: "2025-08-10",
-    amount: 60.0,
-    type: "sending",
-  },
 ];
-
 
 export default async function Page({
   params,
@@ -135,9 +117,15 @@ export default async function Page({
   const Icon = category.icon;
 
   return (
-    <>
+    <div className="grid grid-cols-6 gap-x-4 gap-y-6 p-6 w-full h-full">
       <div className="col-span-6 flex flex-col justify-between">
         <h1 className="scroll-m-20 text-2xl font-bold">{category.title}</h1>
+      </div>
+
+      <div className="col-span-6  w-full flex flex-col justify-between">
+        <div className="flex flex-col gap-3">
+          <Input placeholder="Search event..." className="h-12 border-secondary shadow-none" />
+        </div>
       </div>
 
       <div className="col-span-6 flex flex-col justify-between">
@@ -178,9 +166,9 @@ export default async function Page({
         </ScrollArea>
       </div>
 
-      <div className="col-span-6 flex flex-1 justify-between flex-col">
+      <div className="col-span-6 flex flex-1 justify-between  flex-col">
         <TransactionList transactions={sampleTransactions} />
       </div>
-    </>
+    </div>
   );
 }

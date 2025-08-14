@@ -18,7 +18,7 @@ interface TransactionListProps {
 export const TransactionList = ({ transactions }: TransactionListProps) => {
   return (
     <section>
-      <div className="container px-2 mx-auto gap-2 flex flex-col">
+      <div className="container px-2 mx-auto gap-2  mb-5 flex flex-col">
         <div className="flex justify-between">
           <p className="text-large font-medium ">Up Coming Events</p>
           <Button variant="link" className=" p-0 text-secondary">
@@ -26,7 +26,7 @@ export const TransactionList = ({ transactions }: TransactionListProps) => {
           </Button>
         </div>
 
-        <ScrollArea className="h-[calc(100vh-600px)] w-full">
+        <ScrollArea className="h-max w-full">
           <div className="flex flex-col  w-full  gap-4">
             {transactions.map((tx) => {
               return (

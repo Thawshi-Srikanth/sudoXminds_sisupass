@@ -85,7 +85,7 @@ export default function Slots() {
   const otherCategories = categories.filter((cat) => !cat.main);
 
   return (
-    <>
+    <div className="grid grid-cols-6 gap-x-4 gap-y-6 p-6  w-full h-full">
       {/* Header */}
       <div className="col-span-6 flex flex-col justify-between">
         <h1 className="scroll-m-20 text-2xl font-bold">SiSu Slots</h1>
@@ -144,6 +144,6 @@ export default function Slots() {
           })}
         </div>
       </div>
-    </>
+    </div>
   );
 }
