@@ -50,5 +50,19 @@ func SetupRoutes(app *app.Application) *chi.Mux {
 		r.Delete("/{wallet_id}", handlers.DeleteWallet(app))
 	})
 
+	r.Route("/api/v1/slots", func(r chi.Router) {
+		r.Use(middleware.RequireAuthentication(app))
+		r.Use(middleware.RequireAuthenticatedUser(app))
+		r.Use(middleware.RequireActivatedUser(app))
+
+		r.Post("/", handlers.CreateSlot(app))
+		r.Get("/", handlers.GetUserSlots(app))
+		r.Get("/search", handlers.SearchSlots(app))
+		r.Get("/{id}", handlers.GetSlot(app))
+		r.Put("/{id}", handlers.UpdateSlot(app))
+		r.Delete("/{id}", handlers.DeleteSlot(app))
+		r.Post("/{id}/execute", handlers.ExecuteSlotAction(app))
+	})
+
 	return r
 }

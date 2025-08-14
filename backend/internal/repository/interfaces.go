@@ -33,3 +33,13 @@ type WalletRepository interface {
 	GetBalance(walletID string) (float64, error)
 	UpdateBalance(walletID string, amount float64) error
 }
+
+type SlotRepository interface {
+	Create(slot *types.Slot) error
+	GetByID(slotID string) (*types.Slot, error)
+	GetByUserID(userID string) ([]*types.Slot, error)
+	GetByType(userID, slotType string) ([]*types.Slot, error)
+	Update(slot *types.Slot) error
+	Delete(slotID string) error
+	Search(userID, query string) ([]*types.Slot, error)
+}

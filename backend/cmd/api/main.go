@@ -84,6 +84,7 @@ func main() {
 		Mail:    services.NewMailService(mailSender, cfg.FrontendURL),
 		OAuth:   services.NewOAuthService(&models, googleOAuthConfig, cfg.FrontendURL),
 		Wallets: services.NewWalletService(&models),
+		Slots:   services.NewSlotService(models.Slots),
 	}
 
 	app := &app.Application{

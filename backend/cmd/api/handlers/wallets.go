@@ -139,7 +139,6 @@ func GetWallet(app *appPkg.Application) http.HandlerFunc {
 // @Router			/api/v1/wallets [get]
 func GetUserWallets(app *appPkg.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Get authenticated user from context
 		user := app.ContextGetUser(r)
 		if user.ID.String() == "00000000-0000-0000-0000-000000000000" {
 			app.AuthenticationRequiredResponse(w, r)
@@ -188,7 +187,6 @@ func GetUserWallets(app *appPkg.Application) http.HandlerFunc {
 // @Router			/api/v1/wallets/{wallet_id}/balance [patch]
 func UpdateWalletBalance(app *appPkg.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Get authenticated user from context
 		user := app.ContextGetUser(r)
 		if user.ID.String() == "00000000-0000-0000-0000-000000000000" {
 			app.AuthenticationRequiredResponse(w, r)
@@ -201,7 +199,6 @@ func UpdateWalletBalance(app *appPkg.Application) http.HandlerFunc {
 			return
 		}
 
-		// First, verify that the wallet belongs to the authenticated user
 		walletResponse, err := app.Services.Wallets.GetWallet(r.Context(), walletID)
 		if err != nil {
 			switch {
@@ -216,7 +213,6 @@ func UpdateWalletBalance(app *appPkg.Application) http.HandlerFunc {
 			return
 		}
 
-		// Check if the wallet belongs to the authenticated user
 		if walletResponse.UserID != user.ID {
 			app.NotPermittedResponse(w, r)
 			return
@@ -272,7 +268,6 @@ func UpdateWalletBalance(app *appPkg.Application) http.HandlerFunc {
 // @Router			/api/v1/wallets/{wallet_id} [delete]
 func DeleteWallet(app *appPkg.Application) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Get authenticated user from context
 		user := app.ContextGetUser(r)
 		if user.ID.String() == "00000000-0000-0000-0000-000000000000" {
 			app.AuthenticationRequiredResponse(w, r)
@@ -285,7 +280,6 @@ func DeleteWallet(app *appPkg.Application) http.HandlerFunc {
 			return
 		}
 
-		// First, verify that the wallet belongs to the authenticated user
 		walletResponse, err := app.Services.Wallets.GetWallet(r.Context(), walletID)
 		if err != nil {
 			switch {
@@ -297,7 +291,6 @@ func DeleteWallet(app *appPkg.Application) http.HandlerFunc {
 			return
 		}
 
-		// Check if the wallet belongs to the authenticated user
 		if walletResponse.UserID != user.ID {
 			app.NotPermittedResponse(w, r)
 			return

@@ -43,7 +43,6 @@ type UpdateBalanceRequest struct {
 	Amount float64 `json:"amount"`
 }
 
-// QRCodeData represents the structured data stored in QR codes
 type QRCodeData struct {
 	WalletID   string    `json:"wallet_id"`
 	UserID     string    `json:"user_id"`
@@ -54,7 +53,6 @@ type QRCodeData struct {
 	Signature  string    `json:"signature"`
 }
 
-// NFCCodeData represents the structured data stored in NFC chips
 type NFCCodeData struct {
 	WalletID   string    `json:"wallet_id"`
 	UserID     string    `json:"user_id"`
@@ -73,13 +71,11 @@ func (s *WalletService) CreateWallet(ctx context.Context, userID uuid.UUID, req 
 		return nil, v.ToError()
 	}
 
-	// Verify user exists
 	_, err := s.models.Users.GetByID(userID.String())
 	if err != nil {
 		return nil, fmt.Errorf("user not found: %w", err)
 	}
 
-	// Generate access codes with structured data
 	qrCode, err := generateQRCode(userID, req.WalletType)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate QR code: %w", err)
@@ -111,22 +107,16 @@ func (s *WalletService) CreateWallet(ctx context.Context, userID uuid.UUID, req 
 		return nil, fmt.Errorf("failed to create wallet: %w", err)
 	}
 
-	// Update the QR and NFC codes with the actual wallet ID
 	updatedQRCode, err := updateQRCodeWithWalletID(qrCode, wallet.WalletID.String())
 	if err != nil {
-		// Log error but don't fail the creation
-		// In production, you might want to handle this differently
 	} else {
 		wallet.AccessQRCode = &updatedQRCode
 	}
 
 	updatedNFCCode, err := updateNFCCodeWithWalletID(nfcCode, wallet.WalletID.String())
 	if err != nil {
-		// Log error but don't fail the creation
 	} else {
 		wallet.AccessNFCCode = &updatedNFCCode
-
-		// Update the wallet in database with correct codes
 		_ = s.models.Wallets.Update(wallet)
 	}
 
@@ -168,7 +158,6 @@ func (s *WalletService) GetWallet(ctx context.Context, walletID string) (*Wallet
 }
 
 func (s *WalletService) GetUserWallets(ctx context.Context, userID string) ([]*WalletResponse, error) {
-	// Verify user exists
 	_, err := s.models.Users.GetByID(userID)
 	if err != nil {
 		return nil, fmt.Errorf("user not found: %w", err)
@@ -210,7 +199,6 @@ func (s *WalletService) UpdateBalance(ctx context.Context, walletID string, req 
 		return nil, fmt.Errorf("failed to update balance: %w", err)
 	}
 
-	// Get updated wallet
 	wallet, err := s.models.Wallets.GetByID(walletID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get updated wallet: %w", err)
@@ -236,7 +224,6 @@ func (s *WalletService) DeleteWallet(ctx context.Context, walletID string) error
 		return v.ToError()
 	}
 
-	// Check if wallet exists
 	_, err := s.models.Wallets.GetByID(walletID)
 	if err != nil {
 		return fmt.Errorf("wallet not found: %w", err)
@@ -251,10 +238,8 @@ func (s *WalletService) DeleteWallet(ctx context.Context, walletID string) error
 }
 
 func generateQRCode(userID uuid.UUID, walletType string) (string, error) {
-	// Generate a temporary wallet ID for the QR code structure
 	tempWalletID := uuid.New()
 
-	// Create QR code data structure
 	qrData := QRCodeData{
 		WalletID:   tempWalletID.String(),
 		UserID:     userID.String(),
@@ -264,35 +249,28 @@ func generateQRCode(userID uuid.UUID, walletType string) (string, error) {
 		Version:    "1.0",
 	}
 
-	// Generate signature (in production, use proper cryptographic signing)
 	signature, err := generateRandomHex(16)
 	if err != nil {
 		return "", err
 	}
 	qrData.Signature = signature
 
-	// Convert to JSON and encode
 	jsonData, err := json.Marshal(qrData)
 	if err != nil {
 		return "", fmt.Errorf("failed to marshal QR data: %w", err)
 	}
 
-	// In production, you might want to encrypt this data
-	// For now, we'll use base64 encoding of the JSON
 	return fmt.Sprintf("SISUPASS_QR_%s", hex.EncodeToString(jsonData)), nil
 }
 
 func generateNFCCode(userID uuid.UUID, walletType string) (string, error) {
-	// Generate a temporary wallet ID for the NFC code structure
 	tempWalletID := uuid.New()
 
-	// Generate access key for NFC
 	accessKey, err := generateRandomHex(32)
 	if err != nil {
 		return "", err
 	}
 
-	// Create NFC code data structure
 	nfcData := NFCCodeData{
 		WalletID:   tempWalletID.String(),
 		UserID:     userID.String(),
@@ -303,13 +281,11 @@ func generateNFCCode(userID uuid.UUID, walletType string) (string, error) {
 		AccessKey:  accessKey,
 	}
 
-	// Convert to JSON and encode
 	jsonData, err := json.Marshal(nfcData)
 	if err != nil {
 		return "", fmt.Errorf("failed to marshal NFC data: %w", err)
 	}
 
-	// For NFC, we'll use a different prefix and hex encoding
 	return fmt.Sprintf("SISUPASS_NFC_%s", hex.EncodeToString(jsonData)), nil
 }
 
@@ -322,29 +298,24 @@ func generateRandomHex(length int) (string, error) {
 	return hex.EncodeToString(bytes), nil
 }
 
-// DecodeQRCode decodes and validates a QR code string
 func DecodeQRCode(qrCode string) (*QRCodeData, error) {
-	// Remove the prefix
 	const prefix = "SISUPASS_QR_"
 	if len(qrCode) <= len(prefix) || qrCode[:len(prefix)] != prefix {
 		return nil, fmt.Errorf("invalid QR code format")
 	}
 
-	// Decode hex data
 	hexData := qrCode[len(prefix):]
 	jsonData, err := hex.DecodeString(hexData)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode QR code data: %w", err)
 	}
 
-	// Unmarshal JSON
 	var qrData QRCodeData
 	err = json.Unmarshal(jsonData, &qrData)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal QR code data: %w", err)
 	}
 
-	// Validate expiration
 	if time.Now().After(qrData.ExpiresAt) {
 		return nil, fmt.Errorf("QR code has expired")
 	}
@@ -352,29 +323,24 @@ func DecodeQRCode(qrCode string) (*QRCodeData, error) {
 	return &qrData, nil
 }
 
-// DecodeNFCCode decodes and validates an NFC code string
 func DecodeNFCCode(nfcCode string) (*NFCCodeData, error) {
-	// Remove the prefix
 	const prefix = "SISUPASS_NFC_"
 	if len(nfcCode) <= len(prefix) || nfcCode[:len(prefix)] != prefix {
 		return nil, fmt.Errorf("invalid NFC code format")
 	}
 
-	// Decode hex data
 	hexData := nfcCode[len(prefix):]
 	jsonData, err := hex.DecodeString(hexData)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode NFC code data: %w", err)
 	}
 
-	// Unmarshal JSON
 	var nfcData NFCCodeData
 	err = json.Unmarshal(jsonData, &nfcData)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal NFC code data: %w", err)
 	}
 
-	// Validate expiration
 	if time.Now().After(nfcData.ExpiresAt) {
 		return nil, fmt.Errorf("NFC code has expired")
 	}
@@ -382,7 +348,6 @@ func DecodeNFCCode(nfcCode string) (*NFCCodeData, error) {
 	return &nfcData, nil
 }
 
-// updateQRCodeWithWalletID updates the wallet ID in an existing QR code
 func updateQRCodeWithWalletID(qrCode, walletID string) (string, error) {
 	qrData, err := DecodeQRCode(qrCode)
 	if err != nil {
@@ -391,7 +356,6 @@ func updateQRCodeWithWalletID(qrCode, walletID string) (string, error) {
 
 	qrData.WalletID = walletID
 
-	// Re-encode with updated wallet ID
 	jsonData, err := json.Marshal(qrData)
 	if err != nil {
 		return "", fmt.Errorf("failed to marshal updated QR data: %w", err)
@@ -400,7 +364,6 @@ func updateQRCodeWithWalletID(qrCode, walletID string) (string, error) {
 	return fmt.Sprintf("SISUPASS_QR_%s", hex.EncodeToString(jsonData)), nil
 }
 
-// updateNFCCodeWithWalletID updates the wallet ID in an existing NFC code
 func updateNFCCodeWithWalletID(nfcCode, walletID string) (string, error) {
 	nfcData, err := DecodeNFCCode(nfcCode)
 	if err != nil {
@@ -409,7 +372,6 @@ func updateNFCCodeWithWalletID(nfcCode, walletID string) (string, error) {
 
 	nfcData.WalletID = walletID
 
-	// Re-encode with updated wallet ID
 	jsonData, err := json.Marshal(nfcData)
 	if err != nil {
 		return "", fmt.Errorf("failed to marshal updated NFC data: %w", err)

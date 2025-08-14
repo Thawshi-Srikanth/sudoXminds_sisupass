@@ -29,4 +29,5 @@ type Services struct {
 	Mail    *services.MailService
 	OAuth   *services.OAuthService
 	Wallets *services.WalletService
+	Slots   *services.SlotService
 }

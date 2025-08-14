@@ -121,3 +121,16 @@ type Wallet struct {
 	AccessNFCCode  *string    `json:"access_nfc_code,omitempty"`
 	CreatedAt      time.Time  `json:"created_at"`
 }
+
+type Slot struct {
+	SlotID      uuid.UUID `json:"slot_id"`
+	UserID      uuid.UUID `json:"user_id"`
+	SlotType    string    `json:"slot_type"`
+	Title       string    `json:"title"`
+	Description *string   `json:"description,omitempty"`
+	Action      string    `json:"action"`
+	Status      string    `json:"status"`
+	Fields      []byte    `json:"fields,omitempty"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
