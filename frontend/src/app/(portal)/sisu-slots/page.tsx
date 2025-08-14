@@ -27,52 +27,60 @@ const categories = [
     description: "Workshops, seminars, and student programs",
     icon: Calendar,
     main: true,
+    slug: "events",
   },
   {
     title: "Facilities",
     description: "Book labs, and sports areas",
     icon: Building,
     main: true,
+    slug: "facilities",
   },
   {
     title: "Documents",
     description: "Request IDs, transcripts, and certificates",
     icon: FileText,
     main: true,
+    slug: "documents",
   },
   {
     title: "Appointments",
     description: "Meet with counselors and staff",
     icon: Users,
     main: true,
+    slug: "appointments",
   },
   {
     title: "Exams",
     description: "Register for tests and practicals",
     icon: GraduationCap,
     main: false,
+    slug: "exams",
   },
   {
     title: "Health",
     description: "Checkups, vaccinations, and counseling",
     icon: HeartPulse,
     main: false,
+    slug: "health",
   },
   {
     title: "Transport",
     description: "Book buses, campus shuttles, and permits",
     icon: Bus,
     main: false,
+    slug: "transport",
   },
   {
     title: "Accommodation",
     description: "Reserve hostel rooms and campus housing",
     icon: Home,
     main: false,
+    slug: "accommodation"
   },
 ];
 
-export default function Bookings() {
+export default function Slots() {
   const mainCategories = categories.filter((cat) => cat.main);
   const otherCategories = categories.filter((cat) => !cat.main);
 
