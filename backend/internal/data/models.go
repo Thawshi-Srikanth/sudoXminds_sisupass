@@ -14,13 +14,15 @@ var (
 )
 
 type Models struct {
-	Users  repository.UserRepository
-	Tokens repository.TokenRepository
+	Users   repository.UserRepository
+	Tokens  repository.TokenRepository
+	Wallets repository.WalletRepository
 }
 
 func NewModels(db *sql.DB) Models {
 	return Models{
-		Users:  postgres.NewUserRepository(db),
-		Tokens: postgres.NewTokenRepository(db),
+		Users:   postgres.NewUserRepository(db),
+		Tokens:  postgres.NewTokenRepository(db),
+		Wallets: postgres.NewWalletRepository(db),
 	}
 }

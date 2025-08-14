@@ -23,3 +23,13 @@ type TokenRepository interface {
 	DeleteAllForUser(scope string, userID uuid.UUID) error
 	New(userID uuid.UUID, ttl time.Duration, scope string) (*tokens.Token, error)
 }
+
+type WalletRepository interface {
+	Create(wallet *types.Wallet) error
+	GetByID(walletID string) (*types.Wallet, error)
+	GetByUserID(userID string) ([]*types.Wallet, error)
+	Update(wallet *types.Wallet) error
+	Delete(walletID string) error
+	GetBalance(walletID string) (float64, error)
+	UpdateBalance(walletID string, amount float64) error
+}

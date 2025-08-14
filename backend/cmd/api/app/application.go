@@ -24,8 +24,9 @@ type Application struct {
 }
 
 type Services struct {
-	Users  *services.UserService
-	Tokens *services.TokenService
-	Mail   *services.MailService
-	OAuth  *services.OAuthService
+	Users   *services.UserService
+	Tokens  *services.TokenService
+	Mail    *services.MailService
+	OAuth   *services.OAuthService
+	Wallets *services.WalletService
 }

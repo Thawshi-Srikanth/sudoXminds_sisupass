@@ -143,7 +143,6 @@ func GoogleCallback(app *appPkg.Application) http.HandlerFunc {
 		state := r.URL.Query().Get("state")
 		code := r.URL.Query().Get("code")
 
-		// Verify state token
 		cookie, err := r.Cookie("oauthstate")
 		if err != nil {
 			app.Logger.PrintInfo("Missing cookie", map[string]string{
@@ -163,7 +162,6 @@ func GoogleCallback(app *appPkg.Application) http.HandlerFunc {
 			return
 		}
 
-		// Process OAuth callback using service
 		oauthRequest := services.GoogleOAuthRequest{
 			State: state,
 			Code:  code,
@@ -198,4 +196,54 @@ func generateStateOauthCookie(w http.ResponseWriter) string {
 	}
 	http.SetCookie(w, &cookie)
 	return state
+}
+
+// CreateAuthenticationToken creates an authentication token for login
+// @Summary		User login
+// @Description	Authenticate user with email and password and return authentication token
+// @Tags			Authentication
+// @Accept			json
+// @Produce		json
+// @Param			request	body		services.LoginRequest	true	"Login credentials"
+// @Success		200		{object}	map[string]interface{}	"Login successful"
+// @Failure		400		{object}	map[string]interface{}	"Bad request"
+// @Failure		401		{object}	map[string]interface{}	"Invalid credentials"
+// @Failure		422		{object}	map[string]interface{}	"Validation failed"
+// @Failure		500		{object}	map[string]interface{}	"Internal server error"
+// @Router			/api/v1/auth/login [post]
+func CreateAuthenticationToken(app *appPkg.Application) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var input services.LoginRequest
+
+		err := app.ReadJSON(w, r, &input)
+		if err != nil {
+			app.BadRequestResponse(w, r, err)
+			return
+		}
+
+		loginResponse, err := app.Services.Users.LoginUser(r.Context(), input)
+		if err != nil {
+			switch {
+			case validator.IsValidationError(err):
+				validationErr := err.(validator.ValidationError)
+				app.FailedValidationResponse(w, r, validationErr.Errors)
+			case errors.Is(err, types.ErrInvalidCredentials):
+				app.InvalidCredentialsResponse(w, r)
+			default:
+				app.ServerErrorResponse(w, r, err)
+			}
+			return
+		}
+
+		response := appPkg.Envelope{
+			"user":                 loginResponse.User,
+			"authentication_token": loginResponse.Token,
+			"message":              "Login successful",
+		}
+
+		err = app.WriteJSON(w, http.StatusOK, response, nil)
+		if err != nil {
+			app.ServerErrorResponse(w, r, err)
+		}
+	}
 }

@@ -110,3 +110,14 @@ type UserProfile struct {
 	UpdatedAt    time.Time  `json:"updated_at"`
 	Version      int        `json:"version"`
 }
+
+type Wallet struct {
+	WalletID       uuid.UUID  `json:"wallet_id"`
+	UserID         uuid.UUID  `json:"user_id"`
+	Balance        float64    `json:"balance"`
+	WalletType     string     `json:"wallet_type"`
+	ParentWalletID *uuid.UUID `json:"parent_wallet_id,omitempty"`
+	AccessQRCode   *string    `json:"access_qr_code,omitempty"`
+	AccessNFCCode  *string    `json:"access_nfc_code,omitempty"`
+	CreatedAt      time.Time  `json:"created_at"`
+}
