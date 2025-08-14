@@ -1,5 +1,1 @@
 .env
-!.env.example
-backend/database/
-backend/docs/
-backend/bin
