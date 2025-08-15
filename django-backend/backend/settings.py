@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'authentication',
+    'wallet',
 
     "rest_framework",
     "graphene_django",
