@@ -6,7 +6,8 @@ from rest_framework_simplejwt.views import (
 )
 from graphene_django.views import GraphQLView
 from django.views.decorators.csrf import csrf_exempt
-from authentication.views import GoogleLogin
+from authentication.views import GoogleLogin, RegisterView
+from graphql_jwt.decorators import jwt_cookie
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -17,8 +18,14 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),  # Google login
 
     path('auth/', include('dj_rest_auth.urls')),
-    path('auth/registration/', include('dj_rest_auth.registration.urls')),
+    path('auth/registration/', RegisterView.as_view(), name="custom-register"),
     path('auth/google/', GoogleLogin.as_view(), name='google_login'),
 
-    path("graphql/", csrf_exempt(GraphQLView.as_view(graphiql=True))),
+    path(
+        "graphql/",
+        csrf_exempt(
+            jwt_cookie(GraphQLView.as_view(graphiql=True))
+        ),
+        name="graphql"
+    ),
 ]

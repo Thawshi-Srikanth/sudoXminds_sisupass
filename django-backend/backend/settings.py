@@ -49,23 +49,49 @@ INSTALLED_APPS = [
 
     'authentication',
     'wallet',
-    
+
     'corsheaders',
     'graphql_jwt',
+
     "rest_framework",
     'rest_framework.authtoken',
     'dj_rest_auth',
+
     "graphene_django",
-    "django.contrib.sites",
-    "allauth",
-    "allauth.account",
-    "allauth.socialaccount",
+
+
+
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'dj_rest_auth.registration',
+
     "allauth.socialaccount.providers.google",
+    "graphql_jwt.refresh_token.apps.RefreshTokenConfig",
+
+
+
 
 ]
 
+
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
 GRAPHENE = {
-    'SCHEMA': 'wallet.schema.schema',
+    'SCHEMA': 'backend.schema.schema',
     'MIDDLEWARE': [
         'graphql_jwt.middleware.JSONWebTokenMiddleware',
     ],
@@ -79,10 +105,11 @@ GRAPHQL_JWT = {
 REST_AUTH = {
     'USE_JWT': True,
     'JWT_AUTH_COOKIE': 'jwt-auth',
-    'JWT_AUTH_REFRESH_COOKIE': 'refresh-token'
+    'JWT_AUTH_REFRESH_COOKIE': 'refresh-token',
+    'JWT_AUTH_HTTPONLY': False,
 }
 
-SITE_ID = 2
+SITE_ID = 3
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -96,16 +123,26 @@ MIDDLEWARE = [
     "allauth.account.middleware.AccountMiddleware",
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # React dev server
-    "https://your-frontend-domain.com",
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
+else:
+    CORS_ALLOWED_ORIGINS = [
+        "http://localhost:3000/",
+        "http://127.0.0.1:3000/",
+    ]
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
 ]
+
 
 ROOT_URLCONF = 'backend.urls'
 
 AUTHENTICATION_BACKENDS = (
+    "graphql_jwt.backends.JSONWebTokenBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
     "django.contrib.auth.backends.ModelBackend",  # Default
-    "allauth.account.auth_backends.AuthenticationBackend",  # allauth
+    # allauth
 )
 
 SIMPLE_JWT = {
@@ -118,9 +155,12 @@ SIMPLE_JWT = {
 AUTH_USER_MODEL = 'authentication.CustomUser'
 
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
-ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_LOGIN_METHODS = {"phone", "email"}
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 
+
+JWT_AUTH_COOKIE_SAMESITE = "None"   # MUST be None for cross-site
+JWT_AUTH_COOKIE_SECURE = True       # MUST be True for SameSite=None
 
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
@@ -132,10 +172,10 @@ SOCIALACCOUNT_PROVIDERS = {
             'profile',
             'email',
         ],
-        'AUTH_PARAMS': {
-            'access_type': 'online',
+        "AUTH_PARAMS": {
+            "access_type": "online",
         },
-        'OAUTH_PKCE_ENABLED': True,
+        "VERIFIED_EMAIL": True,
     }
 }
 

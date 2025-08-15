@@ -1,48 +1,36 @@
 from rest_framework import serializers
-from django.contrib.auth import get_user_model
-User = get_user_model()
+from .models import CustomUser
+from rest_framework.validators import UniqueValidator
+from django.contrib.auth.password_validation import validate_password
 
+class RegisterSerializer(serializers.ModelSerializer):
+    User = CustomUser
+    email = serializers.EmailField(
+            required=True,
+            validators=[UniqueValidator(queryset=User.objects.all())]
+            )
 
-class GoogleAuthResponseSerializer(serializers.Serializer):
-    sub = serializers.CharField()
-    email = serializers.EmailField()
-    email_verified = serializers.BooleanField()
-    name = serializers.CharField()
-    picture = serializers.URLField()
-    given_name = serializers.CharField()
-    family_name = serializers.CharField(required=False)
-
-
-User = get_user_model()
-
-
-# --- Google OAuth Response ---
-class GoogleAuthResponseSerializer(serializers.Serializer):
-    sub = serializers.CharField()  # Google user ID
-    email = serializers.EmailField()
-    email_verified = serializers.BooleanField()
-    given_name = serializers.CharField(required=False, allow_blank=True)
-    family_name = serializers.CharField(required=False, allow_blank=True)
-    picture = serializers.URLField(required=False, allow_blank=True)
-
-
-# --- User Serializer ---
-class UserSerializer(serializers.ModelSerializer):
-    token = serializers.SerializerMethodField(read_only=True)
+    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    password2 = serializers.CharField(write_only=True, required=True)
 
     class Meta:
-        model = User
-        fields = [
-            "id",
-            "username",
-            "email",
-            "first_name",
-            "last_name",
-            "google_auth_enabled",
-            "extras",
-            "token",  # optional, can be returned for frontend convenience
-        ]
+        model = CustomUser
+        fields = ('username', 'password', 'password2', 'email',)
 
-    def get_token(self, obj):
-        # Only return if context has request and token is generated
-        return getattr(obj, "token", None)
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError({"password": "Password fields didn't match."})
+
+        return attrs
+
+    def create(self, validated_data):
+        user = CustomUser.objects.create(
+            username=validated_data['username'],
+            email=validated_data['email'],
+        )
+
+        
+        user.set_password(validated_data['password'])
+        user.save()
+
+        return user
