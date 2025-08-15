@@ -110,3 +110,27 @@ type UserProfile struct {
 	UpdatedAt    time.Time  `json:"updated_at"`
 	Version      int        `json:"version"`
 }
+
+type Wallet struct {
+	WalletID       uuid.UUID  `json:"wallet_id"`
+	UserID         uuid.UUID  `json:"user_id"`
+	Balance        float64    `json:"balance"`
+	WalletType     string     `json:"wallet_type"`
+	ParentWalletID *uuid.UUID `json:"parent_wallet_id,omitempty"`
+	AccessQRCode   *string    `json:"access_qr_code,omitempty"`
+	AccessNFCCode  *string    `json:"access_nfc_code,omitempty"`
+	CreatedAt      time.Time  `json:"created_at"`
+}
+
+type Slot struct {
+	SlotID      uuid.UUID `json:"slot_id"`
+	UserID      uuid.UUID `json:"user_id"`
+	SlotType    string    `json:"slot_type"`
+	Title       string    `json:"title"`
+	Description *string   `json:"description,omitempty"`
+	Action      string    `json:"action"`
+	Status      string    `json:"status"`
+	Fields      []byte    `json:"fields,omitempty"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}

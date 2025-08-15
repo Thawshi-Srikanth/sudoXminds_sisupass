@@ -79,10 +79,12 @@ func main() {
 	googleOAuthConfig := cfg.InitGoogleOAuth()
 
 	appServies := &app.Services{
-		Users:  services.NewUserService(&models),
-		Tokens: services.NewTokenService(&models),
-		Mail:   services.NewMailService(mailSender, cfg.FrontendURL),
-		OAuth:  services.NewOAuthService(&models, googleOAuthConfig, cfg.FrontendURL),
+		Users:   services.NewUserService(&models),
+		Tokens:  services.NewTokenService(&models),
+		Mail:    services.NewMailService(mailSender, cfg.FrontendURL),
+		OAuth:   services.NewOAuthService(&models, googleOAuthConfig, cfg.FrontendURL),
+		Wallets: services.NewWalletService(&models),
+		Slots:   services.NewSlotService(models.Slots),
 	}
 
 	app := &app.Application{

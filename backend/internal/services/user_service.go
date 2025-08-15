@@ -224,3 +224,60 @@ func (s *UserService) UpdateUserPassword(ctx context.Context, req UpdatePassword
 
 	return nil
 }
+
+type LoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type LoginResponse struct {
+	User  UserResponse `json:"user"`
+	Token string       `json:"authentication_token"`
+}
+
+func (s *UserService) LoginUser(ctx context.Context, req LoginRequest) (*LoginResponse, error) {
+	v := validator.New()
+	validator.ValidateEmail(v, req.Email)
+	validator.ValidatePasswordPlaintext(v, req.Password)
+
+	if !v.Valid() {
+		return nil, validator.ValidationError{Errors: v.Errors}
+	}
+
+	user, err := s.models.Users.GetByEmail(req.Email)
+	if err != nil {
+		switch {
+		case err == types.ErrRecordNotFound:
+			return nil, types.ErrInvalidCredentials
+		default:
+			return nil, fmt.Errorf("failed to get user by email: %w", err)
+		}
+	}
+
+	match, err := user.Password.Matches(req.Password)
+	if err != nil {
+		return nil, fmt.Errorf("failed to check password: %w", err)
+	}
+
+	if !match {
+		return nil, types.ErrInvalidCredentials
+	}
+
+	// Generate authentication token
+	token, err := s.models.Tokens.New(user.ID, 24*time.Hour, tokens.ScopeAuthentication)
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate authentication token: %w", err)
+	}
+
+	return &LoginResponse{
+		User: UserResponse{
+			ID:        user.ID,
+			Username:  user.UserName,
+			Email:     user.Email,
+			UserType:  user.UserType,
+			Activated: user.Activated,
+			CreatedAt: user.CreatedAt,
+		},
+		Token: token.Plaintext,
+	}, nil
+}
