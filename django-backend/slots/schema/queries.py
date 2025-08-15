@@ -44,6 +44,8 @@ class SlotQuery(graphene.ObjectType):
         BookingNode
     )
 
+    slot_by_id = graphene.Field(SlotNode, id=graphene.UUID(required=True))
+
     def resolve_slots_by_type(root, info, type_id, search=None):
         qs = Slot.objects.filter(slot_type_id=type_id)
         if search:
@@ -58,3 +60,6 @@ class SlotQuery(graphene.ObjectType):
         if user.is_anonymous:
             return Booking.objects.none()
         return Booking.objects.filter(wallet__user=user).order_by("booking_date")
+
+    def resolve_slot_by_id(root, info, id):
+        return Slot.objects.filter(id=id).first()

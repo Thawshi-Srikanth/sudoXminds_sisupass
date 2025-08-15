@@ -1,3 +1,11 @@
+"use client";
+
+import { useParams } from "next/navigation";
+import Image from "next/image";
+import { gql, useQuery } from "@apollo/client";
+import client from "@/lib/apolloClient";
+import { useState } from "react";
+
 import { Button } from "@/components/ui/button";
 import { UpcomingList } from "./upcoming-list";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
@@ -6,167 +14,117 @@ import {
   TicketCardBody,
   TicketCardFooter,
 } from "@/components/ui/slot-card";
-import {
-  Calendar,
-  Building,
-  FileText,
-  Users,
-  GraduationCap,
-  HeartPulse,
-  Bus,
-  Home,
-} from "lucide-react"; // import your icons
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import Link from "next/link";
 
-// Categories array
-const categories = [
-  {
-    title: "Events",
-    description: "Workshops, seminars, and student programs",
-    icon: Calendar,
-    main: true,
-    slug: "events",
-  },
-  {
-    title: "Facilities",
-    description: "Book labs, and sports areas",
-    icon: Building,
-    main: true,
-    slug: "facilities",
-  },
-  {
-    title: "Documents",
-    description: "Request IDs, transcripts, and certificates",
-    icon: FileText,
-    main: true,
-    slug: "documents",
-  },
-  {
-    title: "Appointments",
-    description: "Meet with counselors and staff",
-    icon: Users,
-    main: true,
-    slug: "appointments",
-  },
-  {
-    title: "Exams",
-    description: "Register for tests and practicals",
-    icon: GraduationCap,
-    main: false,
-    slug: "exams",
-  },
-  {
-    title: "Health",
-    description: "Checkups, vaccinations, and counseling",
-    icon: HeartPulse,
-    main: false,
-    slug: "health",
-  },
-  {
-    title: "Transport",
-    description: "Book buses, campus shuttles, and permits",
-    icon: Bus,
-    main: false,
-    slug: "transport",
-  },
-  {
-    title: "Accommodation",
-    description: "Reserve hostel rooms and campus housing",
-    icon: Home,
-    main: false,
-    slug: "accommodation",
-  },
-];
-
-const upcoming = [
-  {
-    id: "TXN12345678",
-    date: "2025-08-12",
-    amount: 120.0,
-    type: "topup",
-  },
-  {
-    id: "TXN12345679",
-    date: "2025-08-11",
-    amount: 45.0,
-    type: "spending",
-  },
-  {
-    id: "TXN12345680",
-    date: "2025-08-10",
-    amount: 60.0,
-    type: "sending",
-  },
-];
-
-export default async function Page({
-  params,
-}: {
-  params: Promise<{ category: string }>;
-}) {
-  const { category: slug } = await params;
-
-  // Find category by slug
-  const category = categories.find((c) => c.slug === slug);
-
-  if (!category) {
-    return <p>Category not found.</p>;
+// GraphQL queries matching your backend resolvers
+const GET_SLOTS = gql`
+  query SlotsPage($typeId: UUID!, $search: String) {
+    slotTypes {
+      id
+      name
+    }
+    slotsByType(typeId: $typeId, search: $search) {
+      id
+      title
+      coverImage
+      description
+      action
+    }
+    trendingSlots(typeId: $typeId, limit: 5) {
+      id
+      title
+      coverImage
+      description
+      action
+    }
+    upcomingBookings {
+      id
+      slot {
+        id
+        title
+        coverImage
+      }
+      bookingDate
+      status
+    }
   }
+`;
 
-  const Icon = category.icon;
+export default function Slots() {
+  const params = useParams();
+  const { category } = params; // This will be the UUID slug for the type
+
+  const [search, setSearch] = useState("");
+
+  // Apollo client-side query
+  const { data, loading, error } = useQuery(GET_SLOTS, {
+    client,
+    variables: { typeId: category, search },
+    fetchPolicy: "no-cache",
+  });
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error loading slots.</p>;
+
+  const categoryName =
+    data?.slotTypes.find((t: any) => t.id === category)?.name || category;
+  const trending = data?.trendingSlots || [];
+  const slots = data?.slotsByType || [];
+  const upcoming = data?.upcomingBookings || [];
+
+  const fallbackImage = "/static/images/card-noise.png";
 
   return (
     <div className="grid grid-cols-6 gap-x-4 gap-y-6 p-6 w-full h-full">
+      {/* Category Name */}
       <div className="col-span-6 flex flex-col justify-between">
-        <h1 className="scroll-m-20 text-2xl font-bold">{category.title}</h1>
+        <h1 className="text-2xl font-bold">{categoryName}</h1>
       </div>
 
-      <div className="col-span-6  w-full flex flex-col justify-between">
-        <div className="flex flex-col gap-3">
-          <Input placeholder="Search event..." className="h-12 border-secondary shadow-none" />
-        </div>
+      {/* Search Bar */}
+      <div className="col-span-6 w-full flex flex-col justify-between">
+        <Input
+          placeholder="Search event..."
+          className="h-12 border-secondary shadow-none"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
       </div>
 
+      {/* Trending Slots */}
       <div className="col-span-6 flex flex-col justify-between">
         <div className="flex justify-between">
-          <p className="text-large font-medium ">🔥Trending</p>
-          <Button variant="link" className=" p-0 text-secondary">
+          <p className="text-large font-medium">🔥Trending</p>
+          <Button variant="link" className="p-0 text-secondary">
             View all
           </Button>
         </div>
         <ScrollArea className="w-full whitespace-nowrap">
           <div className="flex w-max space-x-4">
-            <TicketCard>
-              <TicketCardBody
-                imageSrc="/static/images/event-image.png"
-                badgeText="VIP"
-                badgeVariant="destructive"
-              />
-              <TicketCardFooter
-                title="Event Title"
-                description="Event details"
-                badgeText="$99"
-              />
-            </TicketCard>
-            <TicketCard>
-              <TicketCardBody
-                imageSrc="/static/images/event-image.png"
-                badgeText="VIP"
-                badgeVariant="destructive"
-              />
-              <TicketCardFooter
-                title="Event Title"
-                description="Event details"
-                badgeText="$99"
-              />
-            </TicketCard>
+            {trending.map((slot: any) => (
+              <Link key={slot.id} href={`/sisu-slots/${category}/${slot.id}`} className="flex w-[300px]">
+                <TicketCard className="max-w-[300px]">
+                  <TicketCardBody
+                    imageSrc={slot.coverImage || fallbackImage}
+                    badgeText="VIP"
+                    badgeVariant="destructive"
+                ></TicketCardBody>
+                <TicketCardFooter
+                  title={slot.title}
+                  description={slot.description?.about || ""}
+                  badgeText="$99"
+                />
+              </TicketCard>
+              </Link>
+            ))}
           </div>
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
       </div>
 
-      <div className="col-span-6 flex flex-1 justify-between  flex-col">
+      {/* Upcoming Bookings */}
+      <div className="col-span-6 flex flex-1 justify-between flex-col mt-6">
         <UpcomingList upcoming={upcoming} />
       </div>
     </div>

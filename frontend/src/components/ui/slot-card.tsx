@@ -23,7 +23,7 @@ function TicketCard({
       <div
         data-slot="ticket-card"
         className={cn(
-          "relative bg-card text-card-foreground  rounded-md overflow-hidden min-w-3/4 ",
+          "relative bg-card text-card-foreground  rounded-md overflow-hidden w-full ",
 
           className
         )}
