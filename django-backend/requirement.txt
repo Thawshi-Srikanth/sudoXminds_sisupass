@@ -1,0 +1,11 @@
+django
+djangorestframework
+graphene-django
+django-allauth
+python-dotenv
+dj-database-url
+psycopg2-binary
+psycopg[binary,pool]
+djangorestframework-simplejwt
+requests
+cryptography
