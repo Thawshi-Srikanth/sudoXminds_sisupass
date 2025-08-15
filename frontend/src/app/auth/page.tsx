@@ -4,10 +4,29 @@ import { motion, AnimatePresence } from "motion/react";
 import Image from "next/image";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import axios from "axios";
+
+import GoogleSignInButton from "./google-button";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 export default function AuthPage() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const isSignIn = mode === "signin";
+
+  const GOOGLE_AUTH_CLIENT_ID =  "167431025530-ardvei2ptlk4gd4u6r81k7mp263f7p1j.apps.googleusercontent.com";
+  const API_URL = "http://localhost:8000";
+
+
+  const handleGoogleSignIn = async (response) => {
+    try {
+      const { data } = await axios.post(`${API_URL}/auth/google/`, {
+        access_token: response.access_token,
+      });
+      // Handle JWT token storage and logic here
+    } catch (e) {
+      // Handle error
+    }
+  };
 
   return (
     <div className="flex flex-col flex-1">
@@ -99,9 +118,11 @@ export default function AuthPage() {
 
                 <div className="flex flex-col gap-3">
                   <Button size="xl">Sign In Email</Button>
-                  <Button size="xl" variant="outline">
-                    Sign In Google
-                  </Button>
+                  <GoogleOAuthProvider clientId={GOOGLE_AUTH_CLIENT_ID}>
+                    <GoogleSignInButton
+                      handleGoogleSignIn={handleGoogleSignIn}
+                    />
+                  </GoogleOAuthProvider>
                 </div>
 
                 <div className="flex flex-col">

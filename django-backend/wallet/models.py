@@ -47,6 +47,15 @@ class Wallet(models.Model):
         self.save()
         return self.balance
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'wallet_type'],
+                condition=models.Q(wallet_type='main'),
+                name='unique_main_wallet_per_user'
+            )
+        ]
+
 
 class Transaction(models.Model):
     TRANSACTION_TYPES = [

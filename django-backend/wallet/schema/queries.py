@@ -7,19 +7,23 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+
 class UserType(DjangoObjectType):
     class Meta:
         model = User
-        fields = ("id", "email") 
+        fields = ("id", "email")
+
 
 class WalletType(DjangoObjectType):
     balance = graphene.Float()
+
     class Meta:
         model = Wallet
-        fields = ("wallet_id", "wallet_type", "balance", "parent_wallet", "user") 
+        fields = ("wallet_id", "wallet_type",
+                  "balance", "parent_wallet", "user")
 
-    user = graphene.Field(UserType)  
-    parent_wallet = graphene.Field(lambda: WalletType)  
+    user = graphene.Field(UserType)
+    parent_wallet = graphene.Field(lambda: WalletType)
 
     def resolve_balance(self, info):
         # Convert Decimal to float
@@ -27,13 +31,16 @@ class WalletType(DjangoObjectType):
             return float(self.balance)
         return self.balance
 
+
 class TransactionType(DjangoObjectType):
     class Meta:
         model = Transaction
 
+
 class WalletQuery(graphene.ObjectType):
     wallets = graphene.List(WalletType)
     transactions = graphene.List(TransactionType)
+    wallets_under_main = graphene.List(WalletType)  # <-- new query
 
     @login_required
     def resolve_wallets(root, info):
@@ -48,3 +55,17 @@ class WalletQuery(graphene.ObjectType):
         if user.is_anonymous:
             return Transaction.objects.none()
         return Transaction.objects.filter(from_wallet__user=user) | Transaction.objects.filter(to_wallet__user=user)
+
+    @login_required
+    def resolve_wallets_under_main(root, info):
+        user = info.context.user
+        if user.is_anonymous:
+            return Wallet.objects.none()
+
+        try:
+            main_wallet = Wallet.objects.get(user=user, wallet_type="main")
+        except Wallet.DoesNotExist:
+            return Wallet.objects.none()
+
+        # Return all wallets whose parent is the main wallet
+        return Wallet.objects.filter(parent_wallet=main_wallet)

@@ -49,9 +49,12 @@ INSTALLED_APPS = [
 
     'authentication',
     'wallet',
-
+    
+    'corsheaders',
     'graphql_jwt',
     "rest_framework",
+    'rest_framework.authtoken',
+    'dj_rest_auth',
     "graphene_django",
     "django.contrib.sites",
     "allauth",
@@ -68,9 +71,20 @@ GRAPHENE = {
     ],
 }
 
+GRAPHQL_JWT = {
+    'JWT_VERIFY_EXPIRATION': True,
+    'JWT_LONG_RUNNING_REFRESH_TOKEN': True,
+}
+
+REST_AUTH = {
+    'USE_JWT': True,
+    'JWT_AUTH_COOKIE': 'jwt-auth',
+}
+
 SITE_ID = 2
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -79,6 +93,11 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "allauth.account.middleware.AccountMiddleware",
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # React dev server
+    "https://your-frontend-domain.com",
 ]
 
 ROOT_URLCONF = 'backend.urls'

@@ -1,8 +1,33 @@
 import graphene
 from graphql import GraphQLError
+import graphql_jwt
 from wallet.models import Wallet, Transaction
-from .queries import WalletType
+from .queries import UserType, WalletType
 from wallet.utils import login_required
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+
+class TokenAuthSocial(graphene.Mutation):
+    token = graphene.String()
+    user = graphene.Field(lambda: UserType)
+
+    class Arguments:
+        email = graphene.String(required=True)
+
+    def mutate(self, info, email):
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise GraphQLError("User not found")
+
+        if not user.is_active:
+            raise GraphQLError("User inactive")
+
+        # Generate token using graphql_jwt utils
+        token = graphql_jwt.utils.jwt_encode(user) 
+        return TokenAuthSocial(token=token, user=user)
 
 
 class TopUpWallet(graphene.Mutation):

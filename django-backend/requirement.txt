@@ -10,3 +10,5 @@ djangorestframework-simplejwt
 requests
 cryptography
 django-graphql-jwt
+django-cors-headers
+dj-rest-auth
