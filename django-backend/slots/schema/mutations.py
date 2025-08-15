@@ -1,5 +1,5 @@
 import graphene
-from .types import SlotTypeType, SlotTypeSlot, SlotTypeBooking
+from .types import SlotNode, BookingNode, SlotTypeNode
 from slots.models import SlotType, Slot, Booking
 
 
@@ -8,7 +8,7 @@ class CreateSlotType(graphene.Mutation):
         name = graphene.String(required=True)
         frequency = graphene.Int(required=False)
 
-    slot_type = graphene.Field(SlotTypeType)
+    slot_type = graphene.Field(SlotTypeNode)
 
     def mutate(self, info, name, frequency=0):
         obj = SlotType.objects.create(name=name, frequency=frequency)
@@ -23,7 +23,7 @@ class CreateSlot(graphene.Mutation):
         action = graphene.JSONString(required=False)
         fields = graphene.JSONString(required=False)
 
-    slot = graphene.Field(SlotTypeSlot)
+    slot = graphene.Field(SlotTypeNode)
 
     def mutate(self, info, slot_type_id, title, description=None, action=None, fields=None):
         slot = Slot.objects.create(
@@ -42,7 +42,7 @@ class CreateBooking(graphene.Mutation):
         slot_id = graphene.UUID(required=True)
         details = graphene.JSONString(required=False)
 
-    booking = graphene.Field(SlotTypeBooking)
+    booking = graphene.Field(BookingNode)
 
     def mutate(self, info, wallet_id, slot_id, details=None):
         booking = Booking.objects.create(

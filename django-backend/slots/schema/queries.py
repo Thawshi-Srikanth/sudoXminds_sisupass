@@ -1,14 +1,14 @@
 import graphene
-from .types import SlotTypeType, SlotTypeSlot, SlotTypeBooking
+from .types import SlotNode, BookingNode, SlotTypeNode
 from slots.models import SlotType, Slot, Booking
 
 
 class SlotTypeQuery(graphene.ObjectType):
-    slot_types = graphene.List(SlotTypeType, trending=graphene.Boolean())
+    slot_types = graphene.List(SlotTypeNode, trending=graphene.Boolean())
     slots = graphene.List(
-        SlotTypeSlot, slot_type_id=graphene.UUID(required=False))
+        SlotNode, slot_type_id=graphene.UUID(required=False))
     bookings = graphene.List(
-        SlotTypeBooking, wallet_id=graphene.UUID(required=False))
+        BookingNode, wallet_id=graphene.UUID(required=False))
 
     def resolve_slot_types(self, info, trending=False):
         qs = SlotType.objects.all()
@@ -27,3 +27,34 @@ class SlotTypeQuery(graphene.ObjectType):
         if wallet_id:
             qs = qs.filter(wallet_id=wallet_id)
         return qs
+
+
+class SlotQuery(graphene.ObjectType):
+    slots_by_type = graphene.List(
+        SlotNode,
+        type_id=graphene.UUID(required=True),
+        search=graphene.String(required=False)
+    )
+    trending_slots = graphene.List(
+        SlotNode,
+        type_id=graphene.UUID(required=True),
+        limit=graphene.Int(required=False)
+    )
+    upcoming_bookings = graphene.List(
+        BookingNode
+    )
+
+    def resolve_slots_by_type(root, info, type_id, search=None):
+        qs = Slot.objects.filter(slot_type_id=type_id)
+        if search:
+            qs = qs.filter(title__icontains=search)
+        return qs.order_by("description__event__start_date")
+
+    def resolve_trending_slots(root, info, type_id, limit=5):
+        return Slot.objects.filter(slot_type_id=type_id).order_by("-updated_at")[:limit]
+
+    def resolve_upcoming_bookings(root, info):
+        user = info.context.user
+        if user.is_anonymous:
+            return Booking.objects.none()
+        return Booking.objects.filter(wallet__user=user).order_by("booking_date")

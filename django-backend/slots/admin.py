@@ -9,9 +9,12 @@ class SlotTypeAdmin(admin.ModelAdmin):
 
 @admin.register(Slot)
 class SlotAdmin(admin.ModelAdmin):
-    list_display = ['title', 'slot_type', 'created_at']
-    list_filter = ['slot_type']
-
+    list_display = ('title', 'slot_type', 'owner', 'created_at')
+    search_fields = ('title',)
+    list_filter = ('slot_type', 'created_at')
+    
+    # This makes the ManyToMany field appear as a dual list widget
+    filter_horizontal = ('collaborators',)
 
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):

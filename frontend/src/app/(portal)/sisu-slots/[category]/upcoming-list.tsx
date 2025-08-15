@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import React from "react";
 
-interface Transaction {
+interface Upcoming {
   id: string;
   date: string;
   amount: number;
@@ -10,12 +10,12 @@ interface Transaction {
   description?: string;
 }
 
-interface TransactionListProps {
-  transactions: Transaction[];
+interface UpcomingListProps {
+  upcoming: Upcoming[];
 }
 
 
-export const TransactionList = ({ transactions }: TransactionListProps) => {
+export const UpcomingList = ({ upcoming }: UpcomingListProps) => {
   return (
     <section>
       <div className="container px-2 mx-auto gap-2  mb-5 flex flex-col">
@@ -28,7 +28,7 @@ export const TransactionList = ({ transactions }: TransactionListProps) => {
 
         <ScrollArea className="h-max w-full">
           <div className="flex flex-col  w-full  gap-4">
-            {transactions.map((tx) => {
+            {upcoming.map((tx) => {
               return (
                 <div
                   key={tx.id}

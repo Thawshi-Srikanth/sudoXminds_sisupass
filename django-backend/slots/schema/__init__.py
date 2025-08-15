@@ -1,9 +1,9 @@
 import graphene
-from .queries import SlotTypeQuery
+from .queries import SlotTypeQuery, SlotQuery
 from .mutations import CreateSlotType, CreateSlot, CreateBooking
 
 
-class Query(SlotTypeQuery, graphene.ObjectType):
+class Query(SlotTypeQuery, SlotQuery, graphene.ObjectType):
     pass
 
 

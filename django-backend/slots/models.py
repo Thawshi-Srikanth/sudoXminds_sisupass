@@ -34,6 +34,21 @@ class Slot(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    cover_image = models.ImageField(upload_to="slots/covers/", blank=True, null=True)
+
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="owned_slots"
+    )
+
+    collaborators = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        blank=True,
+        related_name="collaborating_slots",
+        help_text="Users who can edit/manage this slot."
+    )
+
     class Meta:
         ordering = ['-created_at']
 

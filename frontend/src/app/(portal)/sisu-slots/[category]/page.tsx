@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { TransactionList } from "./transaction-list";
+import { UpcomingList } from "./upcoming-list";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
   TicketCard,
@@ -79,7 +79,7 @@ const categories = [
   },
 ];
 
-const sampleTransactions = [
+const upcoming = [
   {
     id: "TXN12345678",
     date: "2025-08-12",
@@ -167,7 +167,7 @@ export default async function Page({
       </div>
 
       <div className="col-span-6 flex flex-1 justify-between  flex-col">
-        <TransactionList transactions={sampleTransactions} />
+        <UpcomingList upcoming={upcoming} />
       </div>
     </div>
   );

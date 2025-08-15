@@ -1,6 +1,6 @@
 # wallet/schema/__init__.py
 import graphene
-from .queries import WalletQuery, PassQuery, TransactionQuery
+from .queries import WalletQuery, PassQuery, TransactionQuery,
 from .mutations import WalletMutation, PassMutation, PassDetailMutation
 
 
