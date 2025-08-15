@@ -1,10 +1,10 @@
 # wallet/schema/__init__.py
 import graphene
-from .queries import WalletQuery, PassQuery
+from .queries import WalletQuery, PassQuery, TransactionQuery
 from .mutations import WalletMutation, PassMutation, PassDetailMutation
 
 
-class Query(WalletQuery, PassQuery,  graphene.ObjectType):
+class Query(WalletQuery, PassQuery, TransactionQuery, graphene.ObjectType):
     pass
 
 

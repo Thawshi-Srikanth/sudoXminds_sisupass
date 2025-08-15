@@ -12,9 +12,7 @@ class WalletType(DjangoObjectType):
 class TransactionType(DjangoObjectType):
     class Meta:
         model = Transaction
-        fields = ("transaction_id", "from_wallet", "to_wallet", "amount",
-                  "transaction_type", "status", "transaction_date", "description")
-
+        fields = "__all__"  # Return all fields
 
 class LocationTypeType(DjangoObjectType):
     class Meta:

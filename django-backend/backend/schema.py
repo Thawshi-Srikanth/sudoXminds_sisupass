@@ -1,6 +1,6 @@
 import graphene
 import graphql_jwt
-from wallet.schema import WalletQuery, WalletMutation, PassQuery, PassMutation, PassDetailMutation
+from wallet.schema import WalletQuery, WalletMutation, PassQuery, PassMutation, PassDetailMutation, TransactionQuery
 from django.contrib.auth import get_user_model
 from graphene_django import DjangoObjectType
 
@@ -19,7 +19,7 @@ class AuthMutations(graphene.ObjectType):
     refresh_token = graphql_jwt.Refresh.Field()
 
 
-class Query(WalletQuery, PassQuery, graphene.ObjectType):
+class Query(WalletQuery, PassQuery, TransactionQuery, graphene.ObjectType):
     me = graphene.Field(lambda: UserType)
 
     def resolve_me(root, info):
