@@ -59,6 +59,10 @@ INSTALLED_APPS = [
 
 ]
 
+GRAPHENE = {
+    'SCHEMA': 'wallet.schema.schema',
+}
+
 SITE_ID = 2
 
 MIDDLEWARE = [
