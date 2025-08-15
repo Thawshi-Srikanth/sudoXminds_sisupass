@@ -1,0 +1,299 @@
+basePath: /api/v1
+definitions:
+  sisupass_com_email-client_cmd_api_app.ErrorResponse:
+    properties:
+      error:
+        example: Invalid request data
+        type: string
+    type: object
+  sisupass_com_email-client_cmd_api_app.HealthResponse:
+    properties:
+      status:
+        example: available
+        type: string
+      system_info:
+        additionalProperties:
+          type: string
+        example:
+          ' "version"': ' "1.0.0"}'
+          '{"environment"': ' "development"'
+        type: object
+    type: object
+  sisupass_com_email-client_cmd_api_app.ValidationResponse:
+    properties:
+      errors:
+        additionalProperties:
+          type: string
+        example:
+          ' "template"': ' "must be provided"}'
+          '{"email"': ' "must be a valid email address"'
+        type: object
+    type: object
+  sisupass_com_email-client_internal_types.BulkEmailRequest:
+    properties:
+      data:
+        additionalProperties: true
+        type: object
+      recipients:
+        items:
+          type: string
+        type: array
+      subject:
+        type: string
+      template:
+        type: string
+    type: object
+  sisupass_com_email-client_internal_types.EmailRequest:
+    properties:
+      data:
+        additionalProperties: true
+        type: object
+      priority:
+        description: high, normal, low
+        type: string
+      scheduled_at:
+        type: string
+      subject:
+        type: string
+      template:
+        type: string
+      to:
+        type: string
+    type: object
+  sisupass_com_email-client_internal_types.EmailResponse:
+    properties:
+      id:
+        type: string
+      message:
+        type: string
+      recipient:
+        type: string
+      sent_at:
+        type: string
+      status:
+        type: string
+    type: object
+  sisupass_com_email-client_internal_types.EmailStats:
+    properties:
+      last_activity:
+        example: "2025-08-15T15:45:30Z"
+        type: string
+      queue_size:
+        example: 3
+        type: integer
+      start_time:
+        example: "2025-08-15T10:30:00Z"
+        type: string
+      total_failed:
+        example: 23
+        type: integer
+      total_pending:
+        example: 5
+        type: integer
+      total_queued:
+        example: 8
+        type: integer
+      total_sent:
+        example: 1250
+        type: integer
+      workers:
+        example: 5
+        type: integer
+    type: object
+  sisupass_com_email-client_internal_types.EmailStatus:
+    properties:
+      created_at:
+        type: string
+      fail_reason:
+        type: string
+      id:
+        type: string
+      recipient:
+        type: string
+      sent_at:
+        type: string
+      status:
+        description: pending, sent, failed, scheduled
+        type: string
+      template:
+        type: string
+    type: object
+  sisupass_com_email-client_internal_types.TemplateResponse:
+    properties:
+      priorities:
+        example:
+        - '["high"'
+        - ' "normal"'
+        - ' "low"]'
+        items:
+          type: string
+        type: array
+      templates:
+        additionalProperties:
+          type: string
+        example:
+          '{"user_welcome"': ' "User welcome email with activation link"}'
+        type: object
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:4000
+info:
+  contact:
+    email: support@sisupass.com
+    name: SisuPass API Support
+    url: http://www.sisupass.com/support
+  description: A standalone email service for SisuPass application providing template-based
+    email sending, bulk operations, and delivery tracking.
+  license:
+    name: MIT
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: SisuPass Email Service API
+  version: "1.0"
+paths:
+  /email/{id}/status:
+    get:
+      description: Retrieve the current delivery status and details of a specific
+        email
+      parameters:
+      - description: Email ID returned from send operation
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Email status and delivery information
+          schema:
+            $ref: '#/definitions/sisupass_com_email-client_internal_types.EmailStatus'
+        "400":
+          description: Bad request - missing or invalid email ID
+          schema:
+            $ref: '#/definitions/sisupass_com_email-client_cmd_api_app.ErrorResponse'
+        "404":
+          description: Email not found - invalid ID or expired
+          schema:
+            $ref: '#/definitions/sisupass_com_email-client_cmd_api_app.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/sisupass_com_email-client_cmd_api_app.ErrorResponse'
+      summary: Get email delivery status
+      tags:
+      - Email Tracking
+  /email/bulk:
+    post:
+      consumes:
+      - application/json
+      description: Send the same email template to multiple recipients at once
+      parameters:
+      - description: Bulk email request with recipients list
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/sisupass_com_email-client_internal_types.BulkEmailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Emails queued successfully
+          schema:
+            items:
+              $ref: '#/definitions/sisupass_com_email-client_internal_types.EmailResponse'
+            type: array
+        "400":
+          description: Bad request - invalid JSON
+          schema:
+            $ref: '#/definitions/sisupass_com_email-client_cmd_api_app.ErrorResponse'
+        "422":
+          description: Validation failed - invalid emails or too many recipients
+          schema:
+            $ref: '#/definitions/sisupass_com_email-client_cmd_api_app.ValidationResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/sisupass_com_email-client_cmd_api_app.ErrorResponse'
+      summary: Send bulk emails
+      tags:
+      - Email Operations
+  /email/send:
+    post:
+      consumes:
+      - application/json
+      description: Send a single email using a specified template with dynamic data
+      parameters:
+      - description: Email request with template and data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/sisupass_com_email-client_internal_types.EmailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Email queued successfully
+          schema:
+            $ref: '#/definitions/sisupass_com_email-client_internal_types.EmailResponse'
+        "400":
+          description: Bad request - invalid JSON or missing required fields
+          schema:
+            $ref: '#/definitions/sisupass_com_email-client_cmd_api_app.ErrorResponse'
+        "422":
+          description: Validation failed - invalid email format or template
+          schema:
+            $ref: '#/definitions/sisupass_com_email-client_cmd_api_app.ValidationResponse'
+        "500":
+          description: Internal server error - email service unavailable
+          schema:
+            $ref: '#/definitions/sisupass_com_email-client_cmd_api_app.ErrorResponse'
+      summary: Send single email
+      tags:
+      - Email Operations
+  /email/stats:
+    get:
+      description: Retrieve comprehensive statistics about email service usage and
+        performance
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Email service statistics and metrics
+          schema:
+            $ref: '#/definitions/sisupass_com_email-client_internal_types.EmailStats'
+      summary: Get email service statistics
+      tags:
+      - Email Analytics
+  /email/templates:
+    get:
+      description: Get all available email templates with descriptions and supported
+        priorities
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Available templates and priorities
+          schema:
+            $ref: '#/definitions/sisupass_com_email-client_internal_types.TemplateResponse'
+      summary: List available email templates
+      tags:
+      - Email Templates
+  /health:
+    get:
+      description: Check API health status and system information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: API is healthy and operational
+          schema:
+            $ref: '#/definitions/sisupass_com_email-client_cmd_api_app.HealthResponse'
+      summary: Health check
+      tags:
+      - System
+swagger: "2.0"

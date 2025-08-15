@@ -1,0 +1,107 @@
+{{define "subject"}}SisuPass Booking Confirmed - {{.booking_reference}}{{end}}
+
+{{define "plainBody"}}
+Hello {{.name}},
+
+Your booking has been confirmed!
+
+Booking Details:
+- Reference: {{.booking_reference}}
+- Service: {{.service_name}}
+- Date: {{.booking_date}}
+- Time: {{.booking_time}}
+- From: {{.from_location}}
+- To: {{.to_location}}
+- Amount: {{.amount}}
+
+{{if .ticket_url}}
+View your ticket: {{.ticket_url}}
+{{end}}
+
+Please arrive at least 10 minutes before departure.
+
+Best regards,
+The SisuPass Team
+{{end}}
+
+{{define "htmlBody"}}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Booking Confirmed - {{.booking_reference}}</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .header { text-align: center; margin-bottom: 30px; }
+        .logo { color: #4CAF50; font-size: 28px; font-weight: bold; }
+        .button { display: inline-block; background-color: #4CAF50; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; font-weight: bold; }
+        .button:hover { background-color: #45a049; }
+        .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #666; text-align: center; }
+        .booking-details { background-color: #e8f5e8; padding: 20px; border-radius: 4px; margin: 20px 0; border-left: 4px solid #4CAF50; }
+        .success-icon { font-size: 48px; text-align: center; margin: 20px 0; }
+        .route { background-color: #f8f9fa; padding: 15px; border-radius: 4px; text-align: center; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🎫 SisuPass</div>
+            <div class="success-icon">✅</div>
+            <h1 style="color: #4CAF50; margin: 10px 0;">Booking Confirmed!</h1>
+        </div>
+        
+        <p>Hello <strong>{{.name}}</strong>,</p>
+        
+        <p>Great news! Your booking has been confirmed and payment processed successfully.</p>
+        
+        <div class="booking-details">
+            <h3>📋 Booking Details</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #c8e6c9;"><strong>Reference:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #c8e6c9;">{{.booking_reference}}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #c8e6c9;"><strong>Service:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #c8e6c9;">{{.service_name}}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #c8e6c9;"><strong>Date & Time:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #c8e6c9;">{{.booking_date}} at {{.booking_time}}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px;"><strong>Amount:</strong></td>
+                    <td style="padding: 8px;"><strong style="color: #4CAF50;">{{.amount}}</strong></td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="route">
+            <h3>🚌 Journey Route</h3>
+            <p><strong>{{.from_location}}</strong> → <strong>{{.to_location}}</strong></p>
+        </div>
+        
+        {{if .ticket_url}}
+        <div style="text-align: center;">
+            <a href="{{.ticket_url}}" class="button">View My Ticket</a>
+        </div>
+        {{end}}
+        
+        <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 4px; margin: 20px 0;">
+            <p><strong>⏰ Important Reminder:</strong></p>
+            <ul>
+                <li>Please arrive at least <strong>10 minutes before departure</strong></li>
+                <li>Keep this confirmation handy for boarding</li>
+                <li>Ensure your SisuPass app is ready for scanning</li>
+            </ul>
+        </div>
+        
+        <div class="footer">
+            <p>Have a great journey!<br>The SisuPass Team</p>
+            <p>This is an automated message. Please do not reply to this email.</p>
+        </div>
+    </div>
+</body>
+</html>
+{{end}}

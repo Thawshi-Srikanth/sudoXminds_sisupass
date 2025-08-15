@@ -1,0 +1,440 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "A standalone email service for SisuPass application providing template-based email sending, bulk operations, and delivery tracking.",
+        "title": "SisuPass Email Service API",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "SisuPass API Support",
+            "url": "http://www.sisupass.com/support",
+            "email": "support@sisupass.com"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:4000",
+    "basePath": "/api/v1",
+    "paths": {
+        "/email/bulk": {
+            "post": {
+                "description": "Send the same email template to multiple recipients at once",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Email Operations"
+                ],
+                "summary": "Send bulk emails",
+                "parameters": [
+                    {
+                        "description": "Bulk email request with recipients list",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/sisupass_com_email-client_internal_types.BulkEmailRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Emails queued successfully",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/sisupass_com_email-client_internal_types.EmailResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - invalid JSON",
+                        "schema": {
+                            "$ref": "#/definitions/sisupass_com_email-client_cmd_api_app.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed - invalid emails or too many recipients",
+                        "schema": {
+                            "$ref": "#/definitions/sisupass_com_email-client_cmd_api_app.ValidationResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/sisupass_com_email-client_cmd_api_app.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/email/send": {
+            "post": {
+                "description": "Send a single email using a specified template with dynamic data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Email Operations"
+                ],
+                "summary": "Send single email",
+                "parameters": [
+                    {
+                        "description": "Email request with template and data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/sisupass_com_email-client_internal_types.EmailRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Email queued successfully",
+                        "schema": {
+                            "$ref": "#/definitions/sisupass_com_email-client_internal_types.EmailResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - invalid JSON or missing required fields",
+                        "schema": {
+                            "$ref": "#/definitions/sisupass_com_email-client_cmd_api_app.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed - invalid email format or template",
+                        "schema": {
+                            "$ref": "#/definitions/sisupass_com_email-client_cmd_api_app.ValidationResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error - email service unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/sisupass_com_email-client_cmd_api_app.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/email/stats": {
+            "get": {
+                "description": "Retrieve comprehensive statistics about email service usage and performance",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Email Analytics"
+                ],
+                "summary": "Get email service statistics",
+                "responses": {
+                    "200": {
+                        "description": "Email service statistics and metrics",
+                        "schema": {
+                            "$ref": "#/definitions/sisupass_com_email-client_internal_types.EmailStats"
+                        }
+                    }
+                }
+            }
+        },
+        "/email/templates": {
+            "get": {
+                "description": "Get all available email templates with descriptions and supported priorities",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Email Templates"
+                ],
+                "summary": "List available email templates",
+                "responses": {
+                    "200": {
+                        "description": "Available templates and priorities",
+                        "schema": {
+                            "$ref": "#/definitions/sisupass_com_email-client_internal_types.TemplateResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/email/{id}/status": {
+            "get": {
+                "description": "Retrieve the current delivery status and details of a specific email",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Email Tracking"
+                ],
+                "summary": "Get email delivery status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Email ID returned from send operation",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Email status and delivery information",
+                        "schema": {
+                            "$ref": "#/definitions/sisupass_com_email-client_internal_types.EmailStatus"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - missing or invalid email ID",
+                        "schema": {
+                            "$ref": "#/definitions/sisupass_com_email-client_cmd_api_app.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Email not found - invalid ID or expired",
+                        "schema": {
+                            "$ref": "#/definitions/sisupass_com_email-client_cmd_api_app.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/sisupass_com_email-client_cmd_api_app.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "description": "Check API health status and system information",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "System"
+                ],
+                "summary": "Health check",
+                "responses": {
+                    "200": {
+                        "description": "API is healthy and operational",
+                        "schema": {
+                            "$ref": "#/definitions/sisupass_com_email-client_cmd_api_app.HealthResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "sisupass_com_email-client_cmd_api_app.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Invalid request data"
+                }
+            }
+        },
+        "sisupass_com_email-client_cmd_api_app.HealthResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "example": "available"
+                },
+                "system_info": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "example": {
+                        " \"version\"": " \"1.0.0\"}",
+                        "{\"environment\"": " \"development\""
+                    }
+                }
+            }
+        },
+        "sisupass_com_email-client_cmd_api_app.ValidationResponse": {
+            "type": "object",
+            "properties": {
+                "errors": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "example": {
+                        " \"template\"": " \"must be provided\"}",
+                        "{\"email\"": " \"must be a valid email address\""
+                    }
+                }
+            }
+        },
+        "sisupass_com_email-client_internal_types.BulkEmailRequest": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "recipients": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "subject": {
+                    "type": "string"
+                },
+                "template": {
+                    "type": "string"
+                }
+            }
+        },
+        "sisupass_com_email-client_internal_types.EmailRequest": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "priority": {
+                    "description": "high, normal, low",
+                    "type": "string"
+                },
+                "scheduled_at": {
+                    "type": "string"
+                },
+                "subject": {
+                    "type": "string"
+                },
+                "template": {
+                    "type": "string"
+                },
+                "to": {
+                    "type": "string"
+                }
+            }
+        },
+        "sisupass_com_email-client_internal_types.EmailResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "recipient": {
+                    "type": "string"
+                },
+                "sent_at": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "sisupass_com_email-client_internal_types.EmailStats": {
+            "type": "object",
+            "properties": {
+                "last_activity": {
+                    "type": "string",
+                    "example": "2025-08-15T15:45:30Z"
+                },
+                "queue_size": {
+                    "type": "integer",
+                    "example": 3
+                },
+                "start_time": {
+                    "type": "string",
+                    "example": "2025-08-15T10:30:00Z"
+                },
+                "total_failed": {
+                    "type": "integer",
+                    "example": 23
+                },
+                "total_pending": {
+                    "type": "integer",
+                    "example": 5
+                },
+                "total_queued": {
+                    "type": "integer",
+                    "example": 8
+                },
+                "total_sent": {
+                    "type": "integer",
+                    "example": 1250
+                },
+                "workers": {
+                    "type": "integer",
+                    "example": 5
+                }
+            }
+        },
+        "sisupass_com_email-client_internal_types.EmailStatus": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "fail_reason": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "recipient": {
+                    "type": "string"
+                },
+                "sent_at": {
+                    "type": "string"
+                },
+                "status": {
+                    "description": "pending, sent, failed, scheduled",
+                    "type": "string"
+                },
+                "template": {
+                    "type": "string"
+                }
+            }
+        },
+        "sisupass_com_email-client_internal_types.TemplateResponse": {
+            "type": "object",
+            "properties": {
+                "priorities": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "[\"high\"",
+                        " \"normal\"",
+                        " \"low\"]"
+                    ]
+                },
+                "templates": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "example": {
+                        "{\"user_welcome\"": " \"User welcome email with activation link\"}"
+                    }
+                }
+            }
+        }
+    },
+    "externalDocs": {
+        "description": "OpenAPI",
+        "url": "https://swagger.io/resources/open-api/"
+    }
+}
