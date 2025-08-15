@@ -1,0 +1,196 @@
+version: "3.8"
+
+services:
+  # SisuPass Email Client Service
+  email-client:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: sisupass-email-client
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      # Server Configuration
+      - PORT=4000
+      - ENV=production
+
+      # SMTP Configuration (use your actual values)
+      - SMTPHOST=${SMTPHOST:-smtp.gmail.com}
+      - SMTPPORT=${SMTPPORT:-587}
+      - SMTPUSERNAME=${SMTPUSERNAME}
+      - SMTPPASS=${SMTPPASS}
+      - SMTPSENDER=${SMTPSENDER:-"SisuPass <noreply@sisupass.com>"}
+
+      # Rate Limiting
+      - LIMITER_RPS=${LIMITER_RPS:-10}
+      - LIMITER_BURST=${LIMITER_BURST:-20}
+      - LIMITER_ENABLED=${LIMITER_ENABLED:-true}
+
+      # Application URLs
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+
+      # Logging
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+
+      # Redis Configuration (optional)
+      - REDIS_URL=redis://redis:6379
+      - REDIS_ENABLED=${REDIS_ENABLED:-false}
+
+    volumes:
+      # Mount email templates (if you want to customize them externally)
+      - ./templates:/app/templates:ro
+      # Mount logs directory
+      - email_logs:/app/logs
+
+    networks:
+      - email-network
+
+    depends_on:
+      - redis
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.email-client.rule=Host(`email.sisupass.local`)"
+      - "traefik.http.services.email-client.loadbalancer.server.port=4000"
+
+  # Redis for caching and queue management (optional but recommended)
+  redis:
+    image: redis:7-alpine
+    container_name: sisupass-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-sisupass123}
+    volumes:
+      - redis_data:/data
+    networks:
+      - email-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Development service with hot reload
+  email-client-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: sisupass-email-client-dev
+    restart: unless-stopped
+    ports:
+      - "4001:4000"
+    environment:
+      # Development Configuration
+      - PORT=4000
+      - ENV=development
+      - LOG_LEVEL=debug
+
+      # SMTP Configuration
+      - SMTPHOST=${SMTPHOST:-smtp.gmail.com}
+      - SMTPPORT=${SMTPPORT:-587}
+      - SMTPUSERNAME=${SMTPUSERNAME}
+      - SMTPPASS=${SMTPPASS}
+      - SMTPSENDER=${SMTPSENDER:-"SisuPass Dev <dev@sisupass.com>"}
+
+      # Rate Limiting (more permissive for dev)
+      - LIMITER_RPS=100
+      - LIMITER_BURST=200
+      - LIMITER_ENABLED=false
+
+      # Application URLs
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+
+      # Redis Configuration
+      - REDIS_URL=redis://redis:6379
+      - REDIS_ENABLED=false
+
+    volumes:
+      # Mount source code for hot reload
+      - .:/app
+      - /app/bin
+      - /app/tmp
+
+    networks:
+      - email-network
+
+    depends_on:
+      - redis
+
+    profiles:
+      - development
+
+  # Nginx reverse proxy (optional)
+  nginx:
+    image: nginx:alpine
+    container_name: sisupass-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    networks:
+      - email-network
+    depends_on:
+      - email-client
+    profiles:
+      - nginx
+
+  # Monitoring with Prometheus (optional)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: sisupass-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - email-network
+    profiles:
+      - monitoring
+
+  # Grafana for dashboards (optional)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: sisupass-grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin123}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana:/etc/grafana/provisioning
+    networks:
+      - email-network
+    profiles:
+      - monitoring
+
+networks:
+  email-network:
+    driver: bridge
+    name: sisupass-email-network
+
+volumes:
+  redis_data:
+    driver: local
+  email_logs:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
