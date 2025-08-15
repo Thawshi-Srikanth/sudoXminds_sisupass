@@ -7,23 +7,20 @@ import {
   CreditCardExpiry,
   CreditCardName,
 } from "@/components/ui/credit-card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { gql, useQuery } from "@apollo/client";
 import client from "@/lib/apolloClient";
 
 type Wallet = {
   walletId: string;
-  walletType: string;
+  walletType?: string;
   balance: number;
-  parentWallet?: Wallet | null;
-  user: {
-    id: string;
-    email: string;
-  };
+  createdAt?: string;
 };
 
 const GET_WALLETS = gql`
   query {
-    myWallets {
+    myPassWallets {
       walletId
       balance
       createdAt
@@ -32,22 +29,54 @@ const GET_WALLETS = gql`
 `;
 
 export default function WalletList() {
-  const { data, loading } = useQuery<{ myWallets: Wallet[] }>(GET_WALLETS, {
-    client,
-  });
+  const { data, loading, error } = useQuery<{ myPassWallets: Wallet[] }>(
+    GET_WALLETS,
+    {
+      client,
+    }
+  );
+
+  if (error) {
+    return (
+      <div className="text-sm text-destructive">
+        something went wrong loading your wallets.
+      </div>
+    );
+  }
+
+  // skeletons while loading
+  if (loading) {
+    return (
+      <>
+        {[...Array(3)].map((_, i) => (
+          <Skeleton className=" flex w-full h-[200px] rounded-2xl" key={i} />
+        ))}
+      </>
+    );
+  }
+
+  const wallets = data?.myPassWallets ?? [];
+
+  if (wallets.length === 0) {
+    return <div className="text-sm text-muted-foreground">no wallets yet.</div>;
+  }
+
   return (
     <>
-      {data?.myWallets.map((wallet) => (
+      {wallets.map((wallet) => (
         <CreditCard key={wallet.walletId}>
-          <CreditCardBack className=" bg-primary text-background ">
-            <div className="flex flex-col justify-between h-full p-4">
+          <CreditCardBack className="bg-secondary text-background">
+            <div className="flex h-full flex-col justify-between p-4">
               <CreditCardName className="flex-1">Buss Pass</CreditCardName>
-              <CreditCardBalance className="flex flex-col flex-1 text-background">
-                <span className=" text-base tracking-wide ">Balance</span>
+
+              <CreditCardBalance className="flex flex-col flex-1">
+                <span className="text-base tracking-wide opacity-90">
+                  Balance
+                </span>
                 {wallet.balance}
               </CreditCardBalance>
 
-              <div className="flex justify-between gap-4 text-background">
+              <div className="flex justify-between gap-4">
                 <CreditCardExpiry>01/24</CreditCardExpiry>
                 <CreditCardCvv>123</CreditCardCvv>
               </div>
