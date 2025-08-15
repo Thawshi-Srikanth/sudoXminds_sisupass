@@ -1,6 +1,8 @@
 import graphene
 from graphene_django import DjangoObjectType
 from wallet.models import Wallet, Transaction
+from wallet.utils import login_required
+
 
 class WalletType(DjangoObjectType):
     class Meta:
@@ -14,12 +16,14 @@ class WalletQuery(graphene.ObjectType):
     wallets = graphene.List(WalletType)
     transactions = graphene.List(TransactionType)
 
+    @login_required
     def resolve_wallets(root, info):
         user = info.context.user
         if user.is_anonymous:
             return Wallet.objects.none()
         return Wallet.objects.filter(user=user)
 
+    @login_required
     def resolve_transactions(root, info):
         user = info.context.user
         if user.is_anonymous:

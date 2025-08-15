@@ -9,3 +9,4 @@ psycopg[binary,pool]
 djangorestframework-simplejwt
 requests
 cryptography
+django-graphql-jwt

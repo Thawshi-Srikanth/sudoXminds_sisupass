@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+from datetime import timedelta
 import os
 from pathlib import Path
 import dj_database_url
@@ -49,6 +50,7 @@ INSTALLED_APPS = [
     'authentication',
     'wallet',
 
+    'graphql_jwt',
     "rest_framework",
     "graphene_django",
     "django.contrib.sites",
@@ -61,6 +63,9 @@ INSTALLED_APPS = [
 
 GRAPHENE = {
     'SCHEMA': 'wallet.schema.schema',
+    'MIDDLEWARE': [
+        'graphql_jwt.middleware.JSONWebTokenMiddleware',
+    ],
 }
 
 SITE_ID = 2
@@ -82,6 +87,12 @@ AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",  # Default
     "allauth.account.auth_backends.AuthenticationBackend",  # allauth
 )
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
 
 
 AUTH_USER_MODEL = 'authentication.CustomUser'
