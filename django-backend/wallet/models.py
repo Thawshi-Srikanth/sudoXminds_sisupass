@@ -85,3 +85,58 @@ class Transaction(models.Model):
 
     def __str__(self):
         return f"{self.transaction_type} - {self.amount}"
+
+
+class LocationType(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+
+class PassCategory(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    description = models.TextField(blank=True, null=True)
+
+    allowed_location_types = models.ManyToManyField(
+        LocationType, blank=True, related_name="pass_categories")
+
+    def __str__(self):
+        return self.name
+
+
+class Location(models.Model):
+    name = models.CharField(max_length=255)
+    address = models.TextField(blank=True, null=True)
+    latitude = models.DecimalField(
+        max_digits=9, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(
+        max_digits=9, decimal_places=6, null=True, blank=True)
+
+    location_type = models.ForeignKey(
+        LocationType, on_delete=models.CASCADE, related_name="locations")
+
+    def __str__(self):
+        return f"{self.name} ({self.location_type.name})"
+
+
+class PassDetails(models.Model):
+    wallet = models.OneToOneField(
+        Wallet, on_delete=models.CASCADE, related_name="pass_details")
+    category = models.ForeignKey(
+        PassCategory, on_delete=models.CASCADE, related_name="passes")
+
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+
+    from_location = models.ForeignKey(
+        Location, on_delete=models.SET_NULL, null=True, blank=True, related_name="passes_from")
+    to_location = models.ForeignKey(
+        Location, on_delete=models.SET_NULL, null=True, blank=True, related_name="passes_to")
+
+    allowed_locations = models.ManyToManyField(
+        Location, blank=True, related_name="allowed_in_passes")
+
+    def __str__(self):
+        return f"{self.wallet.wallet_type} - {self.category.name}"

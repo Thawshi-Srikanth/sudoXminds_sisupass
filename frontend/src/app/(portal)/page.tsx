@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/credit-card";
 import { CardStack } from "@/components/ui/card-stack";
 import { TransactionList } from "@/components/portal/transaction-list";
+import Link from "next/link";
 
 const sampleTransactions = [
   {
@@ -137,9 +138,11 @@ export default function Home() {
           <p className=" text-sm tracking-wide text-center">Top Up</p>
         </div>
         <div className="flex flex-col gap-2 items-center justify-center">
-          <Button variant="muted" size="icon" className=" size-12">
-            <Wallet width={24} height={24} />
-          </Button>
+          <Link href="pass">
+            <Button variant="muted" size="icon" className=" size-12">
+              <Wallet width={24} height={24} />
+            </Button>
+          </Link>
           <p className=" text-sm tracking-wide text-center">Passes</p>
         </div>
         <div className="flex flex-col gap-2 items-center justify-center">

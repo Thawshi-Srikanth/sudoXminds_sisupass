@@ -16,7 +16,7 @@ export default function Home() {
             Manage all your passes here.
           </p>
         </div>
-        <div className="col-span-6 flex px-4 justify-between ">
+        <div className="flex ">
           <Button variant="muted" size="icon" className="size-12">
             <PlusIcon width={24} height={24} />
           </Button>

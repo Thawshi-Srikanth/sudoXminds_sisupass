@@ -1,14 +1,14 @@
 # wallet/schema/__init__.py
 import graphene
-from .queries import WalletQuery
-from .mutations import WalletMutation
+from .queries import WalletQuery, PassQuery
+from .mutations import WalletMutation,PassMutation
 
 
-class Query(WalletQuery, graphene.ObjectType):
+class Query(WalletQuery, PassQuery,  graphene.ObjectType):
     pass
 
 
-class Mutation(WalletMutation, graphene.ObjectType):
+class Mutation(WalletMutation,PassMutation, graphene.ObjectType):
     pass
 
 
