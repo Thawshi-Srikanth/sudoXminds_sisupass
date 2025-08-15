@@ -49,6 +49,7 @@ INSTALLED_APPS = [
 
     'authentication',
     'wallet',
+    'slots',
 
     'corsheaders',
     'graphql_jwt',
