@@ -1,4 +1,15 @@
+"use client";
+
 import { useState } from "react";
+import { useQuery, gql } from "@apollo/client";
+import client from "@/lib/apolloClient";
+
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -8,52 +19,120 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
 
 import { ComboBox } from "@/components/ui/combobox";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { NfcQrDrawer } from "./nfc-qr-drawer";
 
-// Separate options for each pass type
-const busStops = [
-  { value: "bus-stop-1", label: "Bus Stop 1" },
-  { value: "bus-stop-2", label: "Bus Stop 2" },
-];
+export const GET_PASS_DATA = gql`
+  query GetPassData {
+    allLocationTypes {
+      id
+      name
+    }
+    allLocations {
+      id
+      name
+      locationType {
+        id
+        name
+      }
+    }
+    allPassCategories {
+      id
+      name
+      allowedLocationTypes {
+        id
+        name
+      }
+    }
+  }
+`;
 
-const trainStations = [
-  { value: "station-1", label: "Station 1" },
-  { value: "station-2", label: "Station 2" },
-];
+export interface Location {
+  id: string;
+  name: string;
+  locationType: {
+    id: string;
+    name: string;
+  };
+}
 
-const libraryLocations = [
-  { value: "lib-1", label: "Central Library" },
-  { value: "lib-2", label: "Community Library" },
-];
+export interface LocationType {
+  id: string;
+  name: string;
+}
 
-const foodLocations = [
-  { value: "cafeteria-1", label: "Main Cafeteria" },
-  { value: "canteen-1", label: "East Wing Canteen" },
-];
+export interface PassCategory {
+  id: number;
+  name: string;
+  allowedLocationTypes: LocationType[];
+}
 
-const passTypes = ["Bus Pass", "Train Pass", "Library Pass", "Food Pass"];
+export interface PassDataQuery {
+  allLocationTypes: LocationType[];
+  allLocations: Location[];
+  allPassCategories: PassCategory[];
+}
 
-export default function PassCard() {
+export interface PassDataState {
+  [passName: string]: {
+    categoryId: number;
+    from?: string;
+    to?: string;
+    locations?: string[];
+  };
+}
+
+interface PassCardProps {
+  passData: PassDataState;
+  setPassData: React.Dispatch<React.SetStateAction<PassDataState>>;
+  onCreatePass: () => void;
+}
+
+export default function PassCard({
+  passData,
+  setPassData,
+  onCreatePass,
+}: PassCardProps) {
+  const { data, loading, error } = useQuery<PassDataQuery>(GET_PASS_DATA, {
+    client,
+  });
   const [selectedPasses, setSelectedPasses] = useState<string[]>([]);
-  const [passData, setPassData] = useState<Record<string, any>>({});
 
-  const handleSelectPass = (pass: string) => {
-    if (!selectedPasses.includes(pass)) {
-      setSelectedPasses((prev) => [...prev, pass]);
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error loading data</div>;
+
+  const locationOptions: Record<string, { value: string; label: string }[]> =
+    {};
+  data?.allLocationTypes.forEach((lt) => {
+    locationOptions[lt.name] =
+      data.allLocations
+        .filter((loc) => loc.locationType.name === lt.name)
+        .map((loc) => ({ value: loc.id, label: loc.name })) || [];
+  });
+
+  const passTypes = data?.allPassCategories.map((cat) => cat.name) || [];
+
+  const handleSelectPass = (passName: string) => {
+    if (!selectedPasses.includes(passName)) {
+      const category = data?.allPassCategories.find((c) => c.name === passName);
+      setSelectedPasses((prev) => [...prev, passName]);
+      setPassData((prev) => ({
+        ...prev,
+        [passName]: {
+          categoryId: category?.id!, // include categoryId automatically
+        },
+      }));
     }
   };
 
-  const handleDataChange = (pass: string, field: string, value: any) => {
+  const handleDataChange = (
+    pass: string,
+    field: keyof PassDataState[string],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    value: any
+  ) => {
     setPassData((prev) => ({
       ...prev,
       [pass]: {
@@ -90,71 +169,64 @@ export default function PassCard() {
 
         <CardContent className="space-y-4 px-0">
           <ScrollArea className="h-[calc(100vh-500px)] w-full">
-            <div className="flex flex-col h-full divide-y w-full  gap-4">
-              {selectedPasses.map((pass) => (
-                <div key={pass} className="space-y-3 pb-3">
-                  <h4 className="font-medium">{pass}</h4>
+            <div className="flex flex-col h-full divide-y w-full gap-4">
+              {selectedPasses.map((pass) => {
+                const allowedTypes =
+                  data?.allPassCategories.find((c) => c.name === pass)
+                    ?.allowedLocationTypes || [];
 
-                  {pass === "Bus Pass" && (
-                    <div className="grid grid-cols-2 gap-3 relative">
-                      <ComboBox
-                        placeholder="From"
-                        options={busStops}
-                        onChange={(val) => handleDataChange(pass, "from", val)}
-                      />
-                      <ComboBox
-                        placeholder="To "
-                        options={busStops}
-                        onChange={(val) => handleDataChange(pass, "to", val)}
-                      />
-                    </div>
-                  )}
+                return (
+                  <div key={pass} className="space-y-3 pb-3">
+                    <h4 className="font-medium">{pass}</h4>
 
-                  {pass === "Train Pass" && (
-                    <div className="grid grid-cols-2 gap-3 relative">
-                      <ComboBox
-                        placeholder="From"
-                        options={trainStations}
-                        onChange={(val) => handleDataChange(pass, "from", val)}
-                      />
-                      <ComboBox
-                        placeholder="To "
-                        options={trainStations}
-                        onChange={(val) => handleDataChange(pass, "to", val)}
-                      />
-                    </div>
-                  )}
-
-                  {pass === "Library Pass" && (
-                    <MultiSelect
-                      options={libraryLocations}
-                      onValueChange={(vals) =>
-                        handleDataChange(pass, "locations", vals)
+                    {allowedTypes.map((type) => {
+                      const options = locationOptions[type.name] || [];
+                      if (pass === "Bus Pass" || pass === "Train Pass") {
+                        return (
+                          <div
+                            key={type.id}
+                            className="grid grid-cols-2 gap-3 relative"
+                          >
+                            <ComboBox
+                              placeholder="From"
+                              options={options}
+                              onChange={(val) =>
+                                handleDataChange(pass, "from", val)
+                              }
+                            />
+                            <ComboBox
+                              placeholder="To"
+                              options={options}
+                              onChange={(val) =>
+                                handleDataChange(pass, "to", val)
+                              }
+                            />
+                          </div>
+                        );
+                      } else {
+                        return (
+                          <MultiSelect
+                            key={type.id}
+                            options={options}
+                            onValueChange={(vals) =>
+                              handleDataChange(pass, "locations", vals)
+                            }
+                            defaultValue={passData[pass]?.locations || []}
+                          />
+                        );
                       }
-                      defaultValue={passData[pass]?.locations || []}
-                    />
-                  )}
-
-                  {pass === "Food Pass" && (
-                    <MultiSelect
-                      options={foodLocations}
-                      onValueChange={(vals) =>
-                        handleDataChange(pass, "locations", vals)
-                      }
-                      defaultValue={passData[pass]?.locations || []}
-                    />
-                  )}
-                </div>
-              ))}
+                    })}
+                  </div>
+                );
+              })}
             </div>
           </ScrollArea>
         </CardContent>
 
         <CardFooter className="px-0">
-          <NfcQrDrawer
-            serverNfcData="https://sisupass.com/pass/123s"
-            serverQrData="https://sisupass.com/pass/123"
-          />
+          <Button onClick={onCreatePass} variant="default">
+            Create Pass
+          </Button>
         </CardFooter>
       </Card>
     </div>

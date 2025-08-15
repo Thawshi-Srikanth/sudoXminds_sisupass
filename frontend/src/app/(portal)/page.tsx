@@ -18,46 +18,9 @@ import {
 } from "@/components/ui/credit-card";
 import { CardStack } from "@/components/ui/card-stack";
 import { TransactionList } from "@/components/portal/transaction-list";
+import Link from "next/link";
 
-const sampleTransactions = [
-  {
-    id: "TXN12345678",
-    date: "2025-08-12",
-    amount: 120.0,
-    type: "topup",
-  },
-  {
-    id: "TXN12345679",
-    date: "2025-08-11",
-    amount: 45.0,
-    type: "spending",
-  },
-  {
-    id: "TXN12345680",
-    date: "2025-08-10",
-    amount: 60.0,
-    type: "sending",
-  },
 
-  {
-    id: "TXN12345678s",
-    date: "2025-08-12",
-    amount: 120.0,
-    type: "topup",
-  },
-  {
-    id: "TXN12345679s",
-    date: "2025-08-11",
-    amount: 45.0,
-    type: "spending",
-  },
-  {
-    id: "TXN12345680s",
-    date: "2025-08-10",
-    amount: 60.0,
-    type: "sending",
-  },
-];
 
 export default function Home() {
   return (
@@ -137,9 +100,11 @@ export default function Home() {
           <p className=" text-sm tracking-wide text-center">Top Up</p>
         </div>
         <div className="flex flex-col gap-2 items-center justify-center">
-          <Button variant="muted" size="icon" className=" size-12">
-            <Wallet width={24} height={24} />
-          </Button>
+          <Link href="pass">
+            <Button variant="muted" size="icon" className=" size-12">
+              <Wallet width={24} height={24} />
+            </Button>
+          </Link>
           <p className=" text-sm tracking-wide text-center">Passes</p>
         </div>
         <div className="flex flex-col gap-2 items-center justify-center">
@@ -150,7 +115,7 @@ export default function Home() {
         </div>
       </div>
       <div className="col-span-6 flex flex-1 justify-between flex-col">
-        <TransactionList transactions={sampleTransactions} />
+        <TransactionList/>
       </div>
     </div>
   );

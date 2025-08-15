@@ -2,3 +2,6 @@ ignoredBuiltDependencies:
   - '@tailwindcss/oxide'
   - sharp
   - unrs-resolver
+
+packages:
+  - 'frontend'

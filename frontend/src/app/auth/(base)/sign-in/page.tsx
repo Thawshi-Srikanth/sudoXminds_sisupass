@@ -8,12 +8,20 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Form, FormField } from "@/components/ui/form";
 import { PasswordInput } from "@/components/ui/password-input";
+import { login } from "@/lib/auth";
+import { useRouter } from "next/navigation";
 
 export default function SigninPage() {
-  const form = useForm<{ username: string; password: string }>();
-
-  const onSubmit = (data: { username: string; password: string }) => {
-    console.log("Login data:", data);
+  const form = useForm<{ email: string; password: string }>();
+  const router = useRouter();
+  const onSubmit = async (data: { email: string; password: string }) => {
+    const result = await login(data.email, data.password);
+    if (result.access) {
+      // Redirect or set auth state
+      router.push("/");
+    } else {
+      console.log("Login failed", result);
+    }
   };
 
   return (
@@ -48,9 +56,9 @@ export default function SigninPage() {
         >
           <h1 className="scroll-m-20 text-5xl font-bold text-balance text-background">
             Smart ID,
-            <br/>
+            <br />
             Safe
-            <br/>
+            <br />
             Usage.
           </h1>
         </motion.div>
@@ -61,7 +69,12 @@ export default function SigninPage() {
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
           className="absolute aspect-[3.5/2] h-[200px] top-1/2 left-1/2 -translate-y-1/2 flex items-end justify-end"
         >
-          <Image src="/static/images/card-noise.png" alt="card-noise" fill sizes="x1"/>
+          <Image
+            src="/static/images/card-noise.png"
+            alt="card-noise"
+            fill
+            sizes="x1"
+          />
         </motion.div>
 
         <motion.div
@@ -75,7 +88,12 @@ export default function SigninPage() {
           }}
           className="absolute aspect-[3.5/2] h-[200px] top-1/2 left-1/2 -translate-y-1/2 flex items-end justify-end"
         >
-          <Image src="/static/images/card-noise.png" alt="card-noise" fill sizes="x1"/>
+          <Image
+            src="/static/images/card-noise.png"
+            alt="card-noise"
+            fill
+            sizes="x1"
+          />
         </motion.div>
       </div>
 
@@ -103,12 +121,12 @@ export default function SigninPage() {
               >
                 <FormField
                   control={form.control}
-                  name="username"
+                  name="email"
                   render={({ field }) => (
                     <div className="flex flex-col gap-3">
-                      <Label>Username</Label>
+                      <Label>Email</Label>
                       <Input
-                        placeholder="Enter username"
+                        placeholder="Enter you email"
                         className="h-12"
                         {...field}
                       />
