@@ -6,7 +6,7 @@ import WalletList from "./wallets";
 
 export default function Home() {
   return (
-    <>
+    <div className="grid grid-cols-6 gap-x-4 gap-y-6 p-6  w-full h-full">
       <div className="col-span-6 flex justify-between w-full px-2">
         <div className="flex justify-between flex-col">
           <h1 className="scroll-m-20  text-2xl font-bold text-balance">
@@ -30,6 +30,6 @@ export default function Home() {
           </div>
         </ScrollArea>
       </div>
-    </>
+    </div>
   );
 }
