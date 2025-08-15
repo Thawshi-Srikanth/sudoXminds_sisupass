@@ -1,0 +1,88 @@
+{{define "subject"}}SisuPass Invoice #{{.invoice_number}} - {{.amount}}{{end}}
+
+{{define "plainBody"}}
+Hello {{.name}},
+
+Thank you for your payment to SisuPass!
+
+Invoice Details:
+- Invoice Number: {{.invoice_number}}
+- Amount: {{.amount}}
+- Date: {{.date}}
+- Description: {{.description}}
+
+{{if .download_url}}
+Download your invoice: {{.download_url}}
+{{end}}
+
+Best regards,
+The SisuPass Billing Team
+{{end}}
+
+{{define "htmlBody"}}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice #{{.invoice_number}} - SisuPass</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .header { text-align: center; margin-bottom: 30px; }
+        .logo { color: #FF9800; font-size: 28px; font-weight: bold; }
+        .button { display: inline-block; background-color: #FF9800; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; font-weight: bold; }
+        .button:hover { background-color: #F57C00; }
+        .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #666; text-align: center; }
+        .invoice-details { background-color: #fff3e0; padding: 20px; border-radius: 4px; margin: 20px 0; }
+        .amount { font-size: 24px; font-weight: bold; color: #FF9800; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">💰 SisuPass</div>
+            <h1 style="color: #FF9800; margin: 10px 0;">Payment Received</h1>
+        </div>
+        
+        <p>Hello <strong>{{.name}}</strong>,</p>
+        
+        <p>Thank you for your payment! Your transaction has been processed successfully.</p>
+        
+        <div class="invoice-details">
+            <h3>Invoice Details</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Invoice Number:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">{{.invoice_number}}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Date:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">{{.date}}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Description:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">{{.description}}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px;"><strong>Amount:</strong></td>
+                    <td style="padding: 8px;"><span class="amount">{{.amount}}</span></td>
+                </tr>
+            </table>
+        </div>
+        
+        {{if .download_url}}
+        <div style="text-align: center;">
+            <a href="{{.download_url}}" class="button">Download Invoice</a>
+        </div>
+        {{end}}
+        
+        <p>This payment has been added to your SisuPass wallet balance.</p>
+        
+        <div class="footer">
+            <p>Best regards,<br>The SisuPass Billing Team</p>
+            <p>This is an automated message. Please do not reply to this email.</p>
+        </div>
+    </div>
+</body>
+</html>
+{{end}}

@@ -1,0 +1,43 @@
+root = "."
+testdata_dir = "testdata"
+tmp_dir = "tmp"
+
+[build]
+  args_bin = []
+  bin = "./tmp/email-client"
+  cmd = "go build -o ./tmp/email-client ./cmd/api"
+  delay = 1000
+  exclude_dir = ["assets", "tmp", "vendor", "testdata", "docs", ".git", "bin"]
+  exclude_file = []
+  exclude_regex = ["_test.go"]
+  exclude_unchanged = false
+  follow_symlink = false
+  full_bin = ""
+  include_dir = ["cmd", "internal"]
+  include_ext = ["go", "tpl", "tmpl", "html", "yml", "yaml", "json"]
+  include_file = []
+  kill_delay = "2s"
+  log = "build-errors.log"
+  poll = false
+  poll_interval = 0
+  rerun = false
+  rerun_delay = 500
+  stop_on_root_change = false
+
+[color]
+  app = "blue"
+  build = "yellow"
+  main = "magenta"
+  runner = "green"
+  watcher = "cyan"
+
+[log]
+  main_only = false
+  time = true
+
+[misc]
+  clean_on_exit = true
+
+[screen]
+  clear_on_rebuild = true
+  keep_scroll = false
