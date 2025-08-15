@@ -8,34 +8,14 @@ import { gql, useMutation } from "@apollo/client";
 import PassCard, { PassDataState } from "./pass-card";
 import client from "@/lib/apolloClient";
 
-const CREATE_PASS_WALLET = gql`
-  mutation CreatePassWallet {
-    createPassWallet {
+const CREATE_PASS_WALLET_WITH_DETAILS = gql`
+  mutation CreatePassWalletWithDetails($passDetails: [PassDetailInput!]!) {
+    createPassWalletWithDetails(passDetails: $passDetails) {
       wallet {
-        id
+        walletId
+        balance
       }
-    }
-  }
-`;
-
-const CREATE_PASS = gql`
-  mutation CreatePass(
-    $categoryId: Int!
-    $fromLocationId: Int
-    $toLocationId: Int
-    $allowedLocationIds: [Int]
-    $startDate: Date
-    $endDate: Date
-  ) {
-    createPass(
-      categoryId: $categoryId
-      fromLocationId: $fromLocationId
-      toLocationId: $toLocationId
-      allowedLocationIds: $allowedLocationIds
-      startDate: $startDate
-      endDate: $endDate
-    ) {
-      passDetails {
+      createdPassDetails {
         id
       }
     }
@@ -43,44 +23,42 @@ const CREATE_PASS = gql`
 `;
 
 export default function Home() {
-  const [name, setName] = useState("");
   const [expiry, setExpiry] = useState<Date | undefined>();
   const [selectedPassData, setSelectedPassData] = useState<PassDataState>({});
 
-  const [createWallet, { loading: walletLoading, error: walletError }] =
-    useMutation(CREATE_PASS_WALLET, { client });
-
-  const [createPass, { loading: passLoading, error: passError }] = useMutation(
-    CREATE_PASS,
+  const [createPassWalletWithDetails, { loading, error }] = useMutation(
+    CREATE_PASS_WALLET_WITH_DETAILS,
     { client }
   );
 
+  const buildPassDetailsInput = () => {
+    return Object.entries(selectedPassData).map(([passName, pass]) => ({
+      categoryId: pass.categoryId.toString(), // Automatically included
+      fromLocationId: pass.from ? parseInt(pass.from) : null,
+      toLocationId: pass.to ? parseInt(pass.to) : null,
+      allowedLocationIds: pass.locations?.map((id) => parseInt(id)) || [],
+    }));
+  };
+
   const handleCreatePass = async () => {
     try {
-      // 1️⃣ Create the pass wallet
-      const walletRes = await createWallet();
-      const walletId = walletRes.data.createPassWallet.wallet.id;
+      const passDetailsInput = buildPassDetailsInput();
 
-      // 2️⃣ Loop through each selected pass
-      for (const passName in selectedPassData) {
-        const pass = selectedPassData[passName];
+      const { data } = await createPassWalletWithDetails({
+        variables: { passDetails: passDetailsInput },
+      });
 
-        await createPass({
-          variables: {
-            categoryId: pass.categoryId, // Ensure correct type
-            fromLocationId: pass.from ? parseInt(pass.from) : null,
-            toLocationId: pass.to ? parseInt(pass.to) : null,
-            allowedLocationIds: pass.locations?.map((id) => parseInt(id)) || [],
-            startDate: new Date().toISOString().split("T")[0], // Example start date
-            endDate: expiry ? expiry.toISOString().split("T")[0] : null,
-          },
-        });
-      }
+      console.log("Wallet created:", data.createPassWalletWithDetails.wallet);
+      console.log(
+        "Created passes:",
+        data.createPassWalletWithDetails.createdPassDetails
+      );
+
+      // Reset state
+      setSelectedPassData({});
+      setExpiry(undefined);
 
       alert("Passes created successfully!");
-      setSelectedPassData({});
-      setName("");
-      setExpiry(undefined);
     } catch (err) {
       console.error(err);
       alert("Error creating passes");
@@ -90,7 +68,7 @@ export default function Home() {
   return (
     <>
       <div className="col-span-6 flex justify-between w-full px-2">
-        <div className="flex justify-between flex-col">
+        <div className="flex flex-col">
           <h1 className="scroll-m-20 text-2xl font-bold text-balance">
             Add New Pass
           </h1>
@@ -108,8 +86,6 @@ export default function Home() {
               type="text"
               id="name"
               placeholder="Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
             />
           </div>
 
@@ -132,10 +108,8 @@ export default function Home() {
         />
       </div>
 
-      {(walletLoading || passLoading) && <p>Creating pass...</p>}
-      {(walletError || passError) && (
-        <p>Error creating pass: {walletError?.message || passError?.message}</p>
-      )}
+      {loading && <p>Creating pass...</p>}
+      {error && <p>Error creating pass: {error.message}</p>}
     </>
   );
 }

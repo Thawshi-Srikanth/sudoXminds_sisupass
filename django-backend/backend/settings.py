@@ -156,7 +156,7 @@ AUTH_USER_MODEL = 'authentication.CustomUser'
 
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 ACCOUNT_LOGIN_METHODS = {"phone", "email"}
-ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+# ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 
 
 JWT_AUTH_COOKIE_SAMESITE = "None"   # MUST be None for cross-site

@@ -1,5 +1,3 @@
-# wallet/schema/types.py
-import graphene
 from graphene_django import DjangoObjectType
 from ..models import Wallet, Transaction, LocationType, Location, PassCategory, PassDetails
 

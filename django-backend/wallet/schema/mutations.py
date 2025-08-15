@@ -1,9 +1,12 @@
 # wallet/schema/mutations.py
-from datetime import date
+from decimal import Decimal
+from graphql import GraphQLError
+from django.utils import timezone
 import graphene
 from graphql_jwt.decorators import login_required
 from .types import LocationsType, LocationTypeType, PassCategoryType, PassDetailsType, WalletType
 from ..models import Location, PassCategory, PassDetails, Wallet, LocationType
+from django.db import transaction as db_transaction
 
 
 class AddFunds(graphene.Mutation):
@@ -174,3 +177,76 @@ class PassMutation(graphene.ObjectType):
     create_location = CreateLocation.Field()
     create_pass_category = CreatePassCategory.Field()
     create_pass = CreatePass.Field()
+
+
+class PassDetailInput(graphene.InputObjectType):
+    category_id = graphene.ID(required=True)
+    from_location_id = graphene.ID()
+    to_location_id = graphene.ID()
+    allowed_location_ids = graphene.List(graphene.ID)
+    start_date = graphene.types.datetime.Date()
+    end_date = graphene.types.datetime.Date()
+
+
+class CreatePassWalletWithDetails(graphene.Mutation):
+    class Arguments:
+        pass_details = graphene.List(PassDetailInput, required=True)
+
+    wallet = graphene.Field(lambda: WalletType)
+
+    created_pass_details = graphene.List(lambda: PassDetailsType)
+
+    @classmethod
+    @db_transaction.atomic
+    def mutate(cls, root, info, pass_details):
+        user = info.context.user
+        if user.is_anonymous:
+            raise GraphQLError("Authentication required")
+
+        # Get user's main wallet
+        try:
+            parent_wallet = Wallet.objects.get(user=user, wallet_type="main")
+        except Wallet.DoesNotExist:
+            raise GraphQLError("User does not have a main wallet")
+
+        # Always create a new "pass" wallet
+        wallet = Wallet.objects.create(
+            user=user,
+            wallet_type="pass",
+            parent_wallet=parent_wallet,
+            balance=Decimal("0.0")
+        )
+
+        created_passes = []
+
+        for pd in pass_details:
+            try:
+                category = PassCategory.objects.get(id=pd.category_id)
+            except PassCategory.DoesNotExist:
+                raise GraphQLError(f"Invalid category ID: {pd.category_id}")
+
+            pass_detail = PassDetails.objects.create(
+                wallet=wallet,
+                category=category,
+                start_date=pd.start_date or timezone.now().date(),
+                end_date=pd.end_date,
+                from_location=Location.objects.filter(
+                    id=pd.from_location_id).first() if pd.from_location_id else None,
+                to_location=Location.objects.filter(
+                    id=pd.to_location_id).first() if pd.to_location_id else None,
+            )
+
+            if pd.allowed_location_ids:
+                allowed_locs = Location.objects.filter(
+                    id__in=pd.allowed_location_ids)
+                pass_detail.allowed_locations.set(allowed_locs)
+
+            pass_detail.save()
+            created_passes.append(pass_detail)
+
+        # Return the newly created wallet and passes
+        return CreatePassWalletWithDetails(wallet=wallet, created_pass_details=created_passes)
+
+
+class PassDetailMutation(graphene.ObjectType):
+    create_pass_wallet_with_details = CreatePassWalletWithDetails.Field()

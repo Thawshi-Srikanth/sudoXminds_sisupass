@@ -23,7 +23,6 @@ import {
 import { ComboBox } from "@/components/ui/combobox";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { NfcQrDrawer } from "./nfc-qr-drawer";
 
 export const GET_PASS_DATA = gql`
   query GetPassData {
@@ -65,7 +64,7 @@ export interface LocationType {
 }
 
 export interface PassCategory {
-  id: string;
+  id: number;
   name: string;
   allowedLocationTypes: LocationType[];
 }
@@ -104,7 +103,6 @@ export default function PassCard({
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error loading data</div>;
 
-  // Map locationType name to its locations
   const locationOptions: Record<string, { value: string; label: string }[]> =
     {};
   data?.allLocationTypes.forEach((lt) => {
@@ -116,15 +114,23 @@ export default function PassCard({
 
   const passTypes = data?.allPassCategories.map((cat) => cat.name) || [];
 
-  const handleSelectPass = (pass: string) => {
-    if (!selectedPasses.includes(pass)) {
-      setSelectedPasses((prev) => [...prev, pass]);
+  const handleSelectPass = (passName: string) => {
+    if (!selectedPasses.includes(passName)) {
+      const category = data?.allPassCategories.find((c) => c.name === passName);
+      setSelectedPasses((prev) => [...prev, passName]);
+      setPassData((prev) => ({
+        ...prev,
+        [passName]: {
+          categoryId: category?.id!, // include categoryId automatically
+        },
+      }));
     }
   };
 
   const handleDataChange = (
     pass: string,
     field: keyof PassDataState[string],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: any
   ) => {
     setPassData((prev) => ({
@@ -221,10 +227,6 @@ export default function PassCard({
           <Button onClick={onCreatePass} variant="default">
             Create Pass
           </Button>
-          {/* <NfcQrDrawer
-            serverNfcData="https://sisupass.com/pass/123s"
-            serverQrData="https://sisupass.com/pass/123"
-          /> */}
         </CardFooter>
       </Card>
     </div>
