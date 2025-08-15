@@ -72,7 +72,7 @@ export default function SlotDetail() {
   if (!slot) return <p>Slot not found</p>;
 
   const fallbackImage = "/static/images/card-noise.png";
-  const isBooked = true;
+  const isBooked = false;
 
   const desc = slot.description;
   const startDate = desc?.event?.start_date
