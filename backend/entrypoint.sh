@@ -2,9 +2,21 @@
 
 # Wait for Postgres
 echo "Waiting for postgres..."
-while ! nc -z postgres 5432; do
-  sleep 0.1
-done
+python - <<END
+import time, psycopg2, os
+while True:
+    try:
+        conn = psycopg2.connect(
+            dbname=os.environ['POSTGRES_DB'],
+            user=os.environ['POSTGRES_USER'],
+            password=os.environ['POSTGRES_PASSWORD'],
+            host='postgres'
+        )
+        conn.close()
+        break
+    except:
+        time.sleep(0.5)
+END
 echo "Postgres started"
 
 # Apply migrations
@@ -18,7 +30,13 @@ echo "from django.contrib.auth import get_user_model; User = get_user_model(); \
 
 # Run custom management commands to populate database
 echo "Running custom management commands..."
-python manage.py populate_initial_data  # <-- replace with your actual command(s)
+python manage.py populate_pass_data
+python manage.py populate_transactions
+python manage.py populate_slot_types
+python manage.py populate_slots
+python manage.py populate_schedules
+
+
 
 # Collect static files (optional)
 python manage.py collectstatic --noinput

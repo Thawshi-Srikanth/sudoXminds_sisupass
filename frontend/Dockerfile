@@ -2,19 +2,19 @@ FROM node:20
 
 WORKDIR /app
 
-# Copy package files first for dependency caching
-COPY package.json pnpm-lock.yaml ./
-
 # Install pnpm globally
 RUN npm install -g pnpm
+
+# Copy package files first to leverage Docker cache
+COPY package.json pnpm-lock.yaml* ./
 
 # Install dependencies
 RUN pnpm install
 
-# Copy the rest of the frontend code
+# Copy the rest of the code
 COPY . .
 
 EXPOSE 3000
 
-# Start development server
-CMD ["pnpm", "run", "dev"]
+# Use CMD that works well with bind mounts
+CMD ["pnpm", "dev"]

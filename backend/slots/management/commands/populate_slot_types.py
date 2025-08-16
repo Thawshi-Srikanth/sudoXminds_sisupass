@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from slots.models import SlotType
 
+
 class Command(BaseCommand):
     help = "Populate the SlotType table with predefined categories"
 

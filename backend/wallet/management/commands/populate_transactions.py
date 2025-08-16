@@ -3,6 +3,7 @@ from decimal import Decimal
 from django.core.management.base import BaseCommand
 from wallet.models import Wallet, Transaction
 
+
 class Command(BaseCommand):
     help = "Populate sample transactions for existing wallets"
 
