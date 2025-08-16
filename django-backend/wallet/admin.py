@@ -34,3 +34,5 @@ class PassCategoryAdmin(ModelAdmin):
 @admin.register(PassDetails)
 class PassDetailsAdmin(ModelAdmin):
     list_display = ['wallet', 'category']
+
+

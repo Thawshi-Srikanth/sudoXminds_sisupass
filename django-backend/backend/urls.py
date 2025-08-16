@@ -9,9 +9,9 @@ from django.views.decorators.csrf import csrf_exempt
 from authentication.views import GoogleLogin, RegisterView
 from graphql_jwt.decorators import jwt_cookie
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-
     path('api/auth/', include('rest_framework.urls')),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

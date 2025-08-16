@@ -2,6 +2,9 @@
 import uuid
 from django.db import models
 from django.conf import settings
+from .encoders import PrettyJSONEncoder
+from django.utils.translation import gettext_lazy as _
+
 
 class SlotType(models.Model):
     """
@@ -28,9 +31,9 @@ class Slot(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     slot_type = models.ForeignKey(SlotType, on_delete=models.CASCADE, related_name="slots")
     title = models.CharField(max_length=255)
-    description = models.JSONField(blank=True, null=True)  # details, locations, etc.
-    action = models.JSONField(blank=True, null=True)       # action info: text, url, type
-    fields = models.JSONField(blank=True, null=True)       # optional booking form fields
+    description = models.JSONField(_("description"), blank=True, null=True, encoder=PrettyJSONEncoder)
+    action = models.JSONField(_("action"), blank=True, null=True, encoder=PrettyJSONEncoder)
+    fields = models.JSONField(_("fields"), blank=True, null=True, encoder=PrettyJSONEncoder)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
