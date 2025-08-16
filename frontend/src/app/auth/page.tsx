@@ -4,27 +4,28 @@ import { motion, AnimatePresence } from "motion/react";
 import Image from "next/image";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import axios from "axios";
 
 import GoogleSignInButton from "./google-button";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import Link from "next/link";
+import { googleLogin } from "@/lib/auth";
+import { useRouter } from "next/navigation";
 
 export default function AuthPage() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const isSignIn = mode === "signin";
+  const router = useRouter();
 
-  const GOOGLE_AUTH_CLIENT_ID =  "167431025530-ardvei2ptlk4gd4u6r81k7mp263f7p1j.apps.googleusercontent.com";
-  const API_URL = "http://localhost:8000";
-
+  const GOOGLE_AUTH_CLIENT_ID =
+    "167431025530-ardvei2ptlk4gd4u6r81k7mp263f7p1j.apps.googleusercontent.com";
 
   const handleGoogleSignIn = async (response) => {
     try {
-      const { data } = await axios.post(`${API_URL}/auth/google/`, {
-        access_token: response.access_token,
-      });
-      // Handle JWT token storage and logic here
-    } catch (e) {
-      // Handle error
+      await googleLogin(response.access_token);
+
+      router.push("/");
+    } catch (error) {
+      console.error("Google login failed", error);
     }
   };
 
@@ -117,7 +118,11 @@ export default function AuthPage() {
                 </div>
 
                 <div className="flex flex-col gap-3">
-                  <Button size="xl">Sign In Email</Button>
+                  <Link href={"/auth/sign-in"} className="flex-1">
+                    <Button size="xl" className="w-full">
+                      Sign In Email
+                    </Button>
+                  </Link>
                   <GoogleOAuthProvider clientId={GOOGLE_AUTH_CLIENT_ID}>
                     <GoogleSignInButton
                       handleGoogleSignIn={handleGoogleSignIn}
@@ -156,10 +161,16 @@ export default function AuthPage() {
                 </div>
 
                 <div className="flex flex-col gap-3">
-                  <Button size="xl">Sign Up Email</Button>
-                  <Button size="xl" variant="outline">
-                    Continue With Google
-                  </Button>
+                  <Link href={"/auth/sign-up"} className="flex-1">
+                    <Button size="xl" className="w-full">
+                      Sign Up Email
+                    </Button>
+                  </Link>
+                  <GoogleOAuthProvider clientId={GOOGLE_AUTH_CLIENT_ID}>
+                    <GoogleSignInButton
+                      handleGoogleSignIn={handleGoogleSignIn}
+                    />
+                  </GoogleOAuthProvider>
                 </div>
 
                 <div className="flex flex-col">

@@ -4,72 +4,123 @@ import { useState } from "react";
 import { ExpDatePicker } from "@/components/portal/pass/exp-date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AvatarMultiSelect } from "@/components/portal/pass/avatar-select";
+import { gql, useMutation } from "@apollo/client";
+import PassCard, { PassDataState } from "./pass-card";
+import client from "@/lib/apolloClient";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import PassCard from "./pass-card";
-
-const users = [
-  { label: "Thawshi Krish", value: "TK" },
-  { label: "Thawshi Srikanth", value: "TS" },
-  { label: "Jane Doe", value: "JD" },
-];
+const CREATE_PASS_WALLET_WITH_DETAILS = gql`
+  mutation CreatePassWalletWithDetails(
+    $name: String!
+    $expDate: String
+    $passDetails: [PassDetailInput!]!
+  ) {
+    createPassWalletWithDetails(
+      name: $name
+      expDate: $expDate
+      passDetails: $passDetails
+    ) {
+      wallet {
+        walletId
+        balance
+      }
+      createdPassDetails {
+        id
+      }
+    }
+  }
+`;
 
 export default function Home() {
-  const [selected, setSelected] = useState<string[]>([]);
+  const [passName, setPassName] = useState<string>("");
+  const [expiry, setExpiry] = useState<Date | undefined>();
+  const [selectedPassData, setSelectedPassData] = useState<PassDataState>({});
+  const router = useRouter();
+
+  const [createPassWalletWithDetails, { loading, error }] = useMutation(
+    CREATE_PASS_WALLET_WITH_DETAILS,
+    { client }
+  );
+
+  const buildPassDetailsInput = () => {
+    return Object.entries(selectedPassData).map(([passName, pass]) => ({
+      categoryId: pass.categoryId.toString(),
+      fromLocationId: pass.from ? parseInt(pass.from) : null,
+      toLocationId: pass.to ? parseInt(pass.to) : null,
+      allowedLocationIds: pass.locations?.map((id) => parseInt(id)) || [],
+    }));
+  };
+
+  const handleCreatePass = async () => {
+    try {
+      const passDetailsInput = buildPassDetailsInput();
+
+      const { data } = await createPassWalletWithDetails({
+        variables: {
+          name: passName,
+          expDate: expiry ? expiry.toISOString().split("T")[0] : null,
+          passDetails: passDetailsInput,
+        },
+      });
+
+      // Reset state
+      setSelectedPassData({});
+      setExpiry(undefined);
+      setPassName("");
+
+      toast.success("Pass Created Successfully");
+      router.push("/pass");
+    } catch (err) {
+      console.error(err);
+      toast.error("Error creating passes");
+    }
+  };
 
   return (
-    <>
+    <div className="grid grid-cols-6 gap-x-4 gap-y-6 p-6 w-full h-full">
       <div className="col-span-6 flex justify-between w-full px-2">
-        <div className="flex justify-between flex-col">
-          <h1 className="scroll-m-20  text-2xl font-bold text-balance">
+        <div className="flex flex-col">
+          <h1 className="scroll-m-20 text-2xl font-bold text-balance">
             Add New Pass
           </h1>
-          <p className=" text-base tracking-wide">
+          <p className="text-base tracking-wide">
             Fill out the form to create a new pass.
           </p>
         </div>
       </div>
+
       <div className="col-span-6 flex justify-between w-full px-2">
         <div className="grid grid-cols-4 w-full gap-3">
-          <div className="col-span-4 grid w-full  items-center gap-3">
-            <Label htmlFor="email">Name</Label>
-            <Input type="name" id="name" placeholder="Name" />
+          <div className="col-span-4 grid w-full items-center gap-3">
+            <Label htmlFor="name">Name</Label>
+            <Input
+              type="text"
+              id="name"
+              placeholder="Name"
+              value={passName}
+              onChange={(e) => setPassName(e.target.value)}
+            />
           </div>
 
-          <div className="col-span-2 grid w-full  items-center gap-3">
-            <ExpDatePicker />
-          </div>
-
-          <div className="col-span-2 grid w-full  items-center gap-3">
-            <Label htmlFor="pass-holder">Pass Holder</Label>
-            <AvatarMultiSelect
-              options={users}
-              value={selected}
-              onChange={setSelected}
+          <div className="col-span-2 grid w-full items-center gap-3">
+            <ExpDatePicker
+              value={expiry ? expiry.toISOString().split("T")[0] : undefined}
+              onChange={(val: string) =>
+                setExpiry(val ? new Date(val) : undefined)
+              }
             />
           </div>
         </div>
       </div>
 
-      <div className="col-span-6 flex flex-1 h-full  w-full ">
-        <PassCard />
+      <div className="col-span-6 flex flex-1 h-full w-full">
+        <PassCard
+          passData={selectedPassData}
+          setPassData={setSelectedPassData}
+          onCreatePass={handleCreatePass}
+        />
       </div>
-    </>
+    </div>
   );
 }

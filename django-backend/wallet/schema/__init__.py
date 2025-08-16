@@ -1,19 +1,15 @@
+# wallet/schema/__init__.py
 import graphene
-from wallet.schema.queries import WalletQuery
-from wallet.schema.mutations import TokenAuthSocial, WalletMutation
-import graphql_jwt 
+from .queries import WalletQuery, PassQuery, TransactionQuery
+from .mutations import WalletMutation, PassMutation, PassDetailMutation, TransactionMutation
 
-class Query(WalletQuery, graphene.ObjectType):
+
+class Query(WalletQuery, PassQuery, TransactionQuery, graphene.ObjectType):
     pass
 
 
-
-
-class Mutation(WalletMutation, graphene.ObjectType):
-    token_auth = graphql_jwt.ObtainJSONWebToken.Field()
-    verify_token = graphql_jwt.Verify.Field()
-    refresh_token = graphql_jwt.Refresh.Field()
-    token_auth_social = TokenAuthSocial.Field() 
+class Mutation(WalletMutation, PassMutation, PassDetailMutation, TransactionMutation, graphene.ObjectType):
+    pass
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation)

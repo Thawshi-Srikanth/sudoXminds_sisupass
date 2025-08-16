@@ -8,16 +8,35 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Form, FormField } from "@/components/ui/form";
 import { PasswordInput } from "@/components/ui/password-input";
+import { signup } from "@/lib/auth";
+import { useRouter } from "next/navigation";
 
 export default function SigninPage() {
   const form = useForm<{
-    username: string;
+    email: string;
     password: string;
     confirmPassword: string;
   }>();
 
-  const onSubmit = (data: { username: string; password: string }) => {
-    console.log("Login data:", data);
+  const router = useRouter();
+
+  const onSubmit = async (data: {
+    email: string;
+    password: string;
+    confirmPassword: string;
+  }) => {
+    const result = await signup(
+      data.email,
+      data.email,
+      data.password,
+      data.confirmPassword
+    );
+    if (result.access) {
+      // Redirect or set auth state
+      router.push("/auth/sign-up/user-verification");
+    } else {
+      console.log("Login failed", result);
+    }
   };
 
   return (
@@ -117,12 +136,12 @@ export default function SigninPage() {
               >
                 <FormField
                   control={form.control}
-                  name="username"
+                  name="email"
                   render={({ field }) => (
                     <div className="flex flex-col gap-3">
-                      <Label>Username</Label>
+                      <Label>Email</Label>
                       <Input
-                        placeholder="Enter username"
+                        placeholder="Enter email"
                         className="h-12"
                         {...field}
                       />

@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { Button } from "@/components/ui/button";
-import { BellDot, Menu, UserRound } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -27,10 +26,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${jetbrains.variable} antialiased max-h-lvh`}>
+      <body
+        className={`${inter.variable} ${jetbrains.variable} antialiased max-h-lvh`}
+      >
         <ScrollArea className="relative max-h-lvh flex flex-col items-center justify-start">
           {children}
         </ScrollArea>
+
+        <Toaster richColors   />
       </body>
     </html>
   );

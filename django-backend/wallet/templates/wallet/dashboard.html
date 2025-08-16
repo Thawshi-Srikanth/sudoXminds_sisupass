@@ -1,0 +1,30 @@
+{% extends 'admin/base.html' %} {% block content %}
+<h1>{{ page_title }}</h1>
+
+<h2>Transactions (last 7 days)</h2>
+<ul>
+  {% for t in transactions %}
+  <li>{{ t.transaction_date__date }}: {{ t.count }}</li>
+  {% empty %}
+  <li>No transactions in last 7 days</li>
+  {% endfor %}
+</ul>
+
+<h2>Wallets Created (last 7 days)</h2>
+<ul>
+  {% for w in wallets %}
+  <li>{{ w.created_at__date }}: {{ w.count }}</li>
+  {% empty %}
+  <li>No wallets created in last 7 days</li>
+  {% endfor %}
+</ul>
+
+<h2>Passes Created (last 7 days)</h2>
+<ul>
+  {% for p in passes %}
+  <li>{{ p.wallet__created_at__date }}: {{ p.count }}</li>
+  {% empty %}
+  <li>No passes created in last 7 days</li>
+  {% endfor %}
+</ul>
+{% endblock %}

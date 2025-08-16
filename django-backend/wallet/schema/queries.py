@@ -1,71 +1,94 @@
-from decimal import Decimal
+# wallet/schema/queries.py
 import graphene
-from graphene_django import DjangoObjectType
-from wallet.models import Wallet, Transaction
-from wallet.utils import login_required
-from django.contrib.auth import get_user_model
-
-User = get_user_model()
-
-
-class UserType(DjangoObjectType):
-    class Meta:
-        model = User
-        fields = ("id", "email")
-
-
-class WalletType(DjangoObjectType):
-    balance = graphene.Float()
-
-    class Meta:
-        model = Wallet
-        fields = ("wallet_id", "wallet_type",
-                  "balance", "parent_wallet", "user")
-
-    user = graphene.Field(UserType)
-    parent_wallet = graphene.Field(lambda: WalletType)
-
-    def resolve_balance(self, info):
-        # Convert Decimal to float
-        if isinstance(self.balance, Decimal):
-            return float(self.balance)
-        return self.balance
-
-
-class TransactionType(DjangoObjectType):
-    class Meta:
-        model = Transaction
+from graphql_jwt.decorators import login_required
+from .types import LocationsType, LocationTypeType, PassCategoryType, PassDetailsType, WalletType, TransactionType
+from ..models import Location, PassCategory, PassDetails, Wallet, Transaction, LocationType
+from django.db.models import Q
 
 
 class WalletQuery(graphene.ObjectType):
-    wallets = graphene.List(WalletType)
-    transactions = graphene.List(TransactionType)
-    wallets_under_main = graphene.List(WalletType)  # <-- new query
+    my_wallets = graphene.List(WalletType)
+    my_transactions = graphene.List(TransactionType)
+    my_pass_wallets = graphene.List(WalletType)
+    my_main_wallets = graphene.Field(WalletType)
 
     @login_required
-    def resolve_wallets(root, info):
+    def resolve_my_wallets(root, info):
         user = info.context.user
-        if user.is_anonymous:
-            return Wallet.objects.none()
         return Wallet.objects.filter(user=user)
 
     @login_required
-    def resolve_transactions(root, info):
+    def resolve_my_main_wallets(root, info):
         user = info.context.user
-        if user.is_anonymous:
-            return Transaction.objects.none()
+        return Wallet.objects.filter(
+            user=user, wallet_type='main').first()
+
+    @login_required
+    def resolve_my_transactions(root, info):
+        user = info.context.user
         return Transaction.objects.filter(from_wallet__user=user) | Transaction.objects.filter(to_wallet__user=user)
 
     @login_required
-    def resolve_wallets_under_main(root, info):
+    def resolve_my_pass_wallets(root, info):
         user = info.context.user
-        if user.is_anonymous:
-            return Wallet.objects.none()
+        main_wallet = Wallet.objects.filter(
+            user=user, wallet_type='main').first()
+        if not main_wallet:
+            return []
+        return Wallet.objects.filter(parent_wallet=main_wallet, wallet_type='pass')
 
-        try:
-            main_wallet = Wallet.objects.get(user=user, wallet_type="main")
-        except Wallet.DoesNotExist:
-            return Wallet.objects.none()
 
-        # Return all wallets whose parent is the main wallet
-        return Wallet.objects.filter(parent_wallet=main_wallet)
+class PassQuery(graphene.ObjectType):
+    all_location_types = graphene.List(LocationTypeType)
+    all_locations = graphene.List(LocationsType)
+    all_pass_categories = graphene.List(PassCategoryType)
+    my_passes = graphene.List(PassDetailsType)
+
+    @login_required
+    def resolve_all_location_types(root, info):
+        return LocationType.objects.all()
+
+    @login_required
+    def resolve_all_locations(root, info):
+        return Location.objects.select_related("location_type").all()
+
+    @login_required
+    def resolve_all_pass_categories(root, info):
+        return PassCategory.objects.prefetch_related("allowed_location_types").all()
+
+    @login_required
+    def resolve_my_passes(root, info):
+        user = info.context.user
+        return PassDetails.objects.select_related(
+            "wallet", "category", "from_location", "to_location"
+        ).prefetch_related(
+            "allowed_locations"
+        ).filter(wallet__user=user)
+
+
+class TransactionQuery(graphene.ObjectType):
+    user_transactions = graphene.List(
+        TransactionType,
+        limit=graphene.Int(required=False)
+    )
+
+    @login_required
+    def resolve_user_transactions(self, info, limit=None):
+        user = info.context.user
+
+        user_wallets = user.wallets.all()
+
+        child_wallets = Wallet.objects.filter(parent_wallet__in=user_wallets)
+
+        all_wallet_ids = list(user_wallets.values_list('wallet_id', flat=True)) + \
+            list(child_wallets.values_list('wallet_id', flat=True))
+
+        transactions = Transaction.objects.filter(
+            Q(from_wallet_id__in=all_wallet_ids) |
+            Q(to_wallet_id__in=all_wallet_ids)
+        ).order_by('-transaction_date')
+
+        if limit:
+            transactions = transactions[:limit]
+
+        return transactions

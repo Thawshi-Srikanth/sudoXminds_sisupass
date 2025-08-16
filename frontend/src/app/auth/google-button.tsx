@@ -7,7 +7,7 @@ const GoogleSignInButton = ({ handleGoogleSignIn }) => {
   });
   return (
     <Button size="xl" variant="outline" onClick={() => login()}>
-      Sign In Google
+      Continue with google
     </Button>
   );
 };

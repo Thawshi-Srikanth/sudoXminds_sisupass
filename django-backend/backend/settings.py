@@ -10,11 +10,16 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+
 from datetime import timedelta
 import os
 from pathlib import Path
 import dj_database_url
 from dotenv import load_dotenv
+
+
+from .unfold_settings import UNFOLD
+
 
 # Load .env file
 load_dotenv()
@@ -40,32 +45,74 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
+    "unfold",
+    "unfold.contrib.filters",
+    "unfold.contrib.forms",
+    "unfold.contrib.inlines",
+    "unfold.contrib.import_export",
+    "unfold.contrib.guardian",
+    "unfold.contrib.simple_history",
+    "unfold.contrib.location_field",
+    "unfold.contrib.constance",
+
+    "django.contrib.admin",
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+
+
     'authentication',
     'wallet',
-    
+    'slots',
+
     'corsheaders',
     'graphql_jwt',
+
     "rest_framework",
     'rest_framework.authtoken',
     'dj_rest_auth',
+
     "graphene_django",
-    "django.contrib.sites",
-    "allauth",
-    "allauth.account",
-    "allauth.socialaccount",
+
+    'django_celery_beat',
+    'django_celery_results',
+
+
+
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'dj_rest_auth.registration',
+
     "allauth.socialaccount.providers.google",
+    "graphql_jwt.refresh_token.apps.RefreshTokenConfig",
+
+
+
 
 ]
 
+
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
 GRAPHENE = {
-    'SCHEMA': 'wallet.schema.schema',
+    'SCHEMA': 'backend.schema.schema',
     'MIDDLEWARE': [
         'graphql_jwt.middleware.JSONWebTokenMiddleware',
     ],
@@ -79,10 +126,11 @@ GRAPHQL_JWT = {
 REST_AUTH = {
     'USE_JWT': True,
     'JWT_AUTH_COOKIE': 'jwt-auth',
-    'JWT_AUTH_REFRESH_COOKIE': 'refresh-token'
+    'JWT_AUTH_REFRESH_COOKIE': 'refresh-token',
+    'JWT_AUTH_HTTPONLY': False,
 }
 
-SITE_ID = 2
+SITE_ID = 3
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -96,16 +144,30 @@ MIDDLEWARE = [
     "allauth.account.middleware.AccountMiddleware",
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # React dev server
-    "https://your-frontend-domain.com",
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
+else:
+    CORS_ALLOWED_ORIGINS = [
+        "http://localhost:3000/",
+        "http://127.0.0.1:3000/",
+        "http://192.168.142.225:3000/",
+    ]
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://192.168.142.225:3000",
+
 ]
+
+ALLOWED_HOSTS = ['192.168.142.225', 'localhost']
 
 ROOT_URLCONF = 'backend.urls'
 
 AUTHENTICATION_BACKENDS = (
+    "graphql_jwt.backends.JSONWebTokenBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
     "django.contrib.auth.backends.ModelBackend",  # Default
-    "allauth.account.auth_backends.AuthenticationBackend",  # allauth
+    # allauth
 )
 
 SIMPLE_JWT = {
@@ -118,9 +180,12 @@ SIMPLE_JWT = {
 AUTH_USER_MODEL = 'authentication.CustomUser'
 
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
-ACCOUNT_LOGIN_METHODS = {'email'}
-ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_LOGIN_METHODS = {"phone", "email"}
+# ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 
+
+JWT_AUTH_COOKIE_SAMESITE = "None"   # MUST be None for cross-site
+JWT_AUTH_COOKIE_SECURE = True       # MUST be True for SameSite=None
 
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
@@ -132,10 +197,10 @@ SOCIALACCOUNT_PROVIDERS = {
             'profile',
             'email',
         ],
-        'AUTH_PARAMS': {
-            'access_type': 'online',
+        "AUTH_PARAMS": {
+            "access_type": "online",
         },
-        'OAUTH_PKCE_ENABLED': True,
+        "VERIFIED_EMAIL": True,
     }
 }
 
@@ -152,7 +217,7 @@ REST_FRAMEWORK = {
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        "DIRS": [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -212,7 +277,29 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+STATICFILES_DIRS = [
+    BASE_DIR / "static"
+]
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
+
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
