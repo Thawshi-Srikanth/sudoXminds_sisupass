@@ -23,6 +23,8 @@ import {
 import { ComboBox } from "@/components/ui/combobox";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Spinner } from "@/components/ui/spinner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const GET_PASS_DATA = gql`
   query GetPassData {
@@ -100,7 +102,26 @@ export default function PassCard({
   });
   const [selectedPasses, setSelectedPasses] = useState<string[]>([]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading)
+    return (
+      <div className="flex  flex-col p-4  gap-5 w-full">
+        <Skeleton className=" w-full h-10" />
+
+        <Skeleton className="h-5 w-20" />
+
+        <div className=" flex gap-5">
+          <Skeleton className=" flex-1 h-8" />
+          <Skeleton className=" flex-1 h-8" />
+        </div>
+
+        <Skeleton className="h-5 w-20" />
+
+        <div className=" flex gap-5">
+          <Skeleton className=" flex-3 h-8" />
+          <Skeleton className=" flex-1 h-8" />
+        </div>
+      </div>
+    );
   if (error) return <div>Error loading data</div>;
 
   const locationOptions: Record<string, { value: string; label: string }[]> =
@@ -121,7 +142,8 @@ export default function PassCard({
       setPassData((prev) => ({
         ...prev,
         [passName]: {
-          categoryId: category?.id!, // include categoryId automatically
+          // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+          categoryId: category?.id!,
         },
       }));
     }
@@ -224,7 +246,7 @@ export default function PassCard({
         </CardContent>
 
         <CardFooter className="px-0">
-          <Button onClick={onCreatePass} variant="default">
+          <Button onClick={onCreatePass} variant="secondary" size="lg" className="w-full">
             Create Pass
           </Button>
         </CardFooter>

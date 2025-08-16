@@ -6,6 +6,7 @@ import client from "@/lib/apolloClient";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
 import { PlusCircle, CreditCard, Send, Copy } from "lucide-react";
+import Link from "next/link";
 
 // --- Types ---
 interface Transaction {
@@ -42,6 +43,7 @@ export const TransactionList = ({ limit }: { limit?: number }) => {
           fetchPolicy: "no-cache",
         });
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const mapped: Transaction[] = data.userTransactions.map((tx: any) => ({
           id: tx.transactionId,
           date: tx.transactionDate.split("T")[0],
@@ -51,6 +53,7 @@ export const TransactionList = ({ limit }: { limit?: number }) => {
 
         setTransactions(mapped);
         setLoading(false);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         console.error(err);
         setError("Failed to fetch transactions");
@@ -63,12 +66,6 @@ export const TransactionList = ({ limit }: { limit?: number }) => {
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
-
-  const iconByType = {
-    TOPUP: <PlusCircle className="h-6 w-6 text-green-600 flex-shrink-0" />,
-    SPEND: <CreditCard className="h-6 w-6 text-red-600 flex-shrink-0" />,
-    TRANSFER: <Send className="h-6 w-6 text-yellow-400 flex-shrink-0" />,
-  };
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -83,12 +80,14 @@ export const TransactionList = ({ limit }: { limit?: number }) => {
       <div className="container px-4 mx-auto gap-2 flex flex-col">
         <div className="flex justify-between">
           <p className="text-large font-medium">Recent Transactions</p>
-          <Button variant="link" className="p-0 text-secondary">
-            View all
-          </Button>
+          <Link href="/transactions">
+            <Button variant="link" className="p-0 text-secondary">
+              View all
+            </Button>
+          </Link>
         </div>
 
-        <ScrollArea className="h-[calc(100vh-600px)] w-full">
+        <ScrollArea className="h-[350px] w-full">
           <div className="flex flex-col divide-y w-full gap-4">
             {transactions.map((tx) => {
               const isExpense = tx.type === "spend" || tx.type === "transfer";
@@ -99,12 +98,26 @@ export const TransactionList = ({ limit }: { limit?: number }) => {
               return (
                 <div
                   key={tx.id}
-                  className="flex items-center w-full pb-4"
+                  className="flex items-center w-full  h-16"
                   style={{ gap: "1rem" }}
                 >
                   {/* Icon */}
                   <div className="h-12 w-12 flex items-center justify-center rounded-md bg-accent/40">
-                    {iconByType[tx.type]}
+                    {tx.type === "topup" && (
+                      <PlusCircle
+                        className="h-6 w-6 flex-shrink-0 stroke-emerald-400"
+                        color="currentColor"
+                      />
+                    )}
+                    {tx.type === "spend" && (
+                      <CreditCard
+                        className="h-6 w-6 flex-shrink-0 stroke-red-600"
+                        color="currentColor"
+                      />
+                    )}
+                    {tx.type === "transfer" && (
+                      <Send className="h-6 w-6 flex-shrink-0 stroke-yellow-500 " />
+                    )}
                   </div>
 
                   {/* Transaction ID + Copy */}

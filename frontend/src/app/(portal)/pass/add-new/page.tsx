@@ -7,10 +7,20 @@ import { Label } from "@/components/ui/label";
 import { gql, useMutation } from "@apollo/client";
 import PassCard, { PassDataState } from "./pass-card";
 import client from "@/lib/apolloClient";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const CREATE_PASS_WALLET_WITH_DETAILS = gql`
-  mutation CreatePassWalletWithDetails($passDetails: [PassDetailInput!]!) {
-    createPassWalletWithDetails(passDetails: $passDetails) {
+  mutation CreatePassWalletWithDetails(
+    $name: String!
+    $expDate: String
+    $passDetails: [PassDetailInput!]!
+  ) {
+    createPassWalletWithDetails(
+      name: $name
+      expDate: $expDate
+      passDetails: $passDetails
+    ) {
       wallet {
         walletId
         balance
@@ -23,8 +33,10 @@ const CREATE_PASS_WALLET_WITH_DETAILS = gql`
 `;
 
 export default function Home() {
+  const [passName, setPassName] = useState<string>("");
   const [expiry, setExpiry] = useState<Date | undefined>();
   const [selectedPassData, setSelectedPassData] = useState<PassDataState>({});
+  const router = useRouter();
 
   const [createPassWalletWithDetails, { loading, error }] = useMutation(
     CREATE_PASS_WALLET_WITH_DETAILS,
@@ -33,7 +45,7 @@ export default function Home() {
 
   const buildPassDetailsInput = () => {
     return Object.entries(selectedPassData).map(([passName, pass]) => ({
-      categoryId: pass.categoryId.toString(), // Automatically included
+      categoryId: pass.categoryId.toString(),
       fromLocationId: pass.from ? parseInt(pass.from) : null,
       toLocationId: pass.to ? parseInt(pass.to) : null,
       allowedLocationIds: pass.locations?.map((id) => parseInt(id)) || [],
@@ -45,28 +57,28 @@ export default function Home() {
       const passDetailsInput = buildPassDetailsInput();
 
       const { data } = await createPassWalletWithDetails({
-        variables: { passDetails: passDetailsInput },
+        variables: {
+          name: passName,
+          expDate: expiry ? expiry.toISOString().split("T")[0] : null,
+          passDetails: passDetailsInput,
+        },
       });
-
-      console.log("Wallet created:", data.createPassWalletWithDetails.wallet);
-      console.log(
-        "Created passes:",
-        data.createPassWalletWithDetails.createdPassDetails
-      );
 
       // Reset state
       setSelectedPassData({});
       setExpiry(undefined);
+      setPassName("");
 
-      alert("Passes created successfully!");
+      toast.success("Pass Created Successfully");
+      router.push("/pass");
     } catch (err) {
       console.error(err);
-      alert("Error creating passes");
+      toast.error("Error creating passes");
     }
   };
 
   return (
-   <div className="grid grid-cols-6 gap-x-4 gap-y-6 p-6  w-full h-full">
+    <div className="grid grid-cols-6 gap-x-4 gap-y-6 p-6 w-full h-full">
       <div className="col-span-6 flex justify-between w-full px-2">
         <div className="flex flex-col">
           <h1 className="scroll-m-20 text-2xl font-bold text-balance">
@@ -86,6 +98,8 @@ export default function Home() {
               type="text"
               id="name"
               placeholder="Name"
+              value={passName}
+              onChange={(e) => setPassName(e.target.value)}
             />
           </div>
 
@@ -107,11 +121,6 @@ export default function Home() {
           onCreatePass={handleCreatePass}
         />
       </div>
-
     </div>
-      {loading && <p>Creating pass...</p>}
-      {error && <p>Error creating pass: {error.message}</p>}
-    </>
-
   );
 }

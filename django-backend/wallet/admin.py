@@ -9,6 +9,8 @@ class WalletAdmin(ModelAdmin):
     list_display = ['user', 'balance', 'created_at']
     search_fields = ['user__email']
 
+    list_filter = ['wallet_type', 'created_at']
+
 
 @admin.register(Transaction)
 class TransactionAdmin(ModelAdmin):

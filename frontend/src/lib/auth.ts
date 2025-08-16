@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE = "http://localhost:8000/auth";
+const API_BASE = "http://192.168.142.225:8000/auth";
 
 export async function login(email: string, password: string) {
   const res = await axios.post(

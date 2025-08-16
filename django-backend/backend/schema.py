@@ -1,6 +1,6 @@
 import graphene
 import graphql_jwt
-from wallet.schema import WalletQuery, WalletMutation, PassQuery, PassMutation, PassDetailMutation, TransactionQuery
+from wallet.schema import WalletQuery, WalletMutation, PassQuery, PassMutation, PassDetailMutation, TransactionQuery, TransactionMutation
 from django.contrib.auth import get_user_model
 from graphene_django import DjangoObjectType
 import slots.schema as slots_schema
@@ -30,7 +30,7 @@ class Query(WalletQuery, PassQuery, TransactionQuery, slots_schema.Query, graphe
         return user
 
 
-class Mutation(WalletMutation, PassMutation, AuthMutations, PassDetailMutation, slots_schema.Mutation, graphene.ObjectType):
+class Mutation(WalletMutation, PassMutation, AuthMutations, PassDetailMutation, slots_schema.Mutation, TransactionMutation, graphene.ObjectType):
     pass
 
 

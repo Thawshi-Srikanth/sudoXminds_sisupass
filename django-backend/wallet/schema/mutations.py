@@ -4,14 +4,14 @@ from graphql import GraphQLError
 from django.utils import timezone
 import graphene
 from graphql_jwt.decorators import login_required
-from .types import LocationsType, LocationTypeType, PassCategoryType, PassDetailsType, WalletType
-from ..models import Location, PassCategory, PassDetails, Wallet, LocationType
+from .types import LocationsType, LocationTypeType, PassCategoryType, PassDetailsType, WalletType, TransactionType
+from ..models import Location, PassCategory, PassDetails, Transaction, Wallet, LocationType
 from django.db import transaction as db_transaction
 
 
 class AddFunds(graphene.Mutation):
     class Arguments:
-        wallet_id = graphene.UUID(required=True)
+        wallet_id = graphene.UUID(required=False)
         amount = graphene.Decimal(required=True)
 
     wallet = graphene.Field(WalletType)
@@ -19,7 +19,10 @@ class AddFunds(graphene.Mutation):
     @login_required
     def mutate(self, info, wallet_id, amount):
         user = info.context.user
-        wallet = Wallet.objects.filter(wallet_id=wallet_id, user=user).first()
+        if wallet_id is None:
+            wallet = Wallet.objects.filter(wallet_id=wallet_id, user=user).first()
+        else:
+            wallet = Wallet.objects.filter(user=user, wallet_type='main').first()
         if not wallet:
             raise Exception("Wallet not found")
         if amount <= 0:
@@ -191,6 +194,8 @@ class PassDetailInput(graphene.InputObjectType):
 class CreatePassWalletWithDetails(graphene.Mutation):
     class Arguments:
         pass_details = graphene.List(PassDetailInput, required=True)
+        name = graphene.String(required=True)
+        exp_date = graphene.String(required=False)
 
     wallet = graphene.Field(lambda: WalletType)
 
@@ -198,7 +203,7 @@ class CreatePassWalletWithDetails(graphene.Mutation):
 
     @classmethod
     @db_transaction.atomic
-    def mutate(cls, root, info, pass_details):
+    def mutate(cls, root, info, pass_details, name, exp_date=None):
         user = info.context.user
         if user.is_anonymous:
             raise GraphQLError("Authentication required")
@@ -211,6 +216,8 @@ class CreatePassWalletWithDetails(graphene.Mutation):
 
         # Always create a new "pass" wallet
         wallet = Wallet.objects.create(
+            name=name,
+            exp_date=exp_date,
             user=user,
             wallet_type="pass",
             parent_wallet=parent_wallet,
@@ -250,3 +257,89 @@ class CreatePassWalletWithDetails(graphene.Mutation):
 
 class PassDetailMutation(graphene.ObjectType):
     create_pass_wallet_with_details = CreatePassWalletWithDetails.Field()
+
+
+class CreateTransaction(graphene.Mutation):
+    transaction = graphene.Field(TransactionType)
+
+    class Arguments:
+        from_wallet_id = graphene.ID(required=False)
+        to_wallet_id = graphene.ID(required=False)
+        amount = graphene.Decimal(required=True)
+        transaction_type = graphene.String(required=True)  # topup, spend, transfer
+        description = graphene.String(required=False)
+
+    @classmethod
+    @db_transaction.atomic
+    def mutate(cls, root, info, amount, transaction_type, from_wallet_id=None, to_wallet_id=None, description=None):
+        user = info.context.user
+        if user.is_anonymous:
+            raise GraphQLError("Authentication required")
+
+        # Resolve from_wallet
+        from_wallet = None
+        if from_wallet_id:
+            from_wallet = Wallet.objects.filter(pk=from_wallet_id, user=user).first()
+            if not from_wallet:
+                raise GraphQLError("From wallet not found for this user")
+        elif transaction_type in ["spend", "transfer"]:
+            from_wallet = Wallet.objects.filter(user=user, wallet_type="main").first()
+            if not from_wallet:
+                raise GraphQLError("Main wallet not found for this user")
+
+        # Resolve to_wallet
+        to_wallet = None
+        if to_wallet_id:
+            to_wallet = Wallet.objects.filter(pk=to_wallet_id).first()
+            if not to_wallet:
+                raise GraphQLError("To wallet not found")
+        elif transaction_type == "topup":
+            to_wallet = Wallet.objects.filter(user=user, wallet_type="main").first()
+            if not to_wallet:
+                raise GraphQLError("Main wallet not found for this user")
+
+        # Create base transaction
+        transaction = Transaction.objects.create(
+            from_wallet=from_wallet,
+            to_wallet=to_wallet,
+            amount=amount,
+            transaction_type=transaction_type,
+            description=description,
+            status="pending"
+        )
+
+        try:
+            if transaction_type == "topup":
+                if not to_wallet:
+                    raise GraphQLError("Target wallet required for topup")
+                to_wallet.topup(amount)
+
+            elif transaction_type == "spend":
+                if not from_wallet:
+                    raise GraphQLError("Source wallet required for spend")
+                from_wallet.spend(amount)
+
+            elif transaction_type == "transfer":
+                if not from_wallet or not to_wallet:
+                    raise GraphQLError("Both from_wallet and to_wallet required for transfer")
+                # Deduct first
+                from_wallet.spend(amount)
+                # Then add to target
+                to_wallet.topup(amount)
+
+            else:
+                raise GraphQLError("Invalid transaction type")
+
+            transaction.status = "completed"
+
+        except Exception as e:
+            transaction.status = "failed"
+            transaction.save()
+            raise GraphQLError(str(e))
+
+        transaction.save()
+        return CreateTransaction(transaction=transaction)
+
+
+class TransactionMutation(graphene.ObjectType):
+    create_transaction = CreateTransaction.Field()

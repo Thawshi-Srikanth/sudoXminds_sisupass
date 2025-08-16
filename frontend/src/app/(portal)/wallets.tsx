@@ -10,6 +10,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { gql, useQuery } from "@apollo/client";
 import client from "@/lib/apolloClient";
+import { CardStack } from "@/components/ui/card-stack";
 
 type Wallet = {
   walletId: string;
@@ -53,8 +54,8 @@ export default function WalletList() {
   if (loading) {
     return (
       <>
-        {[...Array(3)].map((_, i) => (
-          <Skeleton className=" flex w-full h-[200px] rounded-2xl" key={i} />
+        {[...Array(1)].map((_, i) => (
+          <Skeleton className=" flex w-full h-[250px] rounded-2xl" key={i} />
         ))}
       </>
     );
@@ -67,7 +68,7 @@ export default function WalletList() {
   }
 
   return (
-    <>
+    <CardStack>
       {wallets.map((wallet) => (
         <CreditCard key={wallet.walletId}>
           <CreditCardBack className="bg-secondary text-background">
@@ -83,12 +84,12 @@ export default function WalletList() {
 
               <div className="flex justify-between gap-4">
                 <CreditCardExpiry>{wallet.expDate}</CreditCardExpiry>
-                {/* <CreditCardCvv>123</CreditCardCvv> */}
+                <CreditCardCvv>123</CreditCardCvv>
               </div>
             </div>
           </CreditCardBack>
         </CreditCard>
       ))}
-    </>
+    </CardStack>
   );
 }

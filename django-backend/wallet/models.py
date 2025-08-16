@@ -14,6 +14,7 @@ class Wallet(models.Model):
 
     wallet_id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=100, blank=True, null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE, related_name="wallets")
     balance = models.DecimalField(default=0, max_digits=20, decimal_places=2)
@@ -27,6 +28,7 @@ class Wallet(models.Model):
         max_length=255, unique=True, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    exp_date = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.user.email} - {self.wallet_type} ({self.balance})"

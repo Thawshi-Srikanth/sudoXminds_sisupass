@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 
 import { ScrollArea } from "@/components/ui/scroll-area";
 import WalletList from "./wallets";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -17,9 +18,11 @@ export default function Home() {
           </p>
         </div>
         <div className="flex ">
-          <Button variant="muted" size="icon" className="size-12">
-            <PlusIcon width={24} height={24} />
-          </Button>
+          <Link href={"/pass/add-new"}>
+            <Button variant="muted" size="icon" className="size-12">
+              <PlusIcon width={24} height={24} />
+            </Button>
+          </Link>
         </div>
       </div>
 

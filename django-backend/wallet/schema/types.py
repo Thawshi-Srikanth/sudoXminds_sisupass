@@ -5,8 +5,7 @@ from ..models import Wallet, Transaction, LocationType, Location, PassCategory, 
 class WalletType(DjangoObjectType):
     class Meta:
         model = Wallet
-        fields = ("wallet_id", "balance", "wallet_type",
-                  "created_at", "updated_at")
+        fields = "__all__"
 
 
 class TransactionType(DjangoObjectType):
