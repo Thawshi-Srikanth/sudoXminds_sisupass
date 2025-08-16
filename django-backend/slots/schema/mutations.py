@@ -46,8 +46,9 @@ class CreateBooking(graphene.Mutation):
         # no need for wallet_id; payment goes to owner
         # optional: user can still select their wallet if needed
         user_wallet_id = graphene.ID(required=False)
+        details = graphene.JSONString(required=False)
 
-    def mutate(self, info, schedule_id, desired_time=None, user_wallet_id=None):
+    def mutate(self, info, schedule_id, desired_time=None, user_wallet_id=None, details=None):
         user = info.context.user
         if not user.is_authenticated:
             raise Exception("Authentication required")
@@ -104,7 +105,7 @@ class CreateBooking(graphene.Mutation):
             desired_time=desired_time if schedule.flexible else None,
             status='confirmed' if schedule.price == 0 else 'pending',
             payment_transaction=transaction,
-            details={"price": float(schedule.price)}
+            details={"price": float(schedule.price), **(details or {})}
         )
 
         return CreateBooking(booking=booking)

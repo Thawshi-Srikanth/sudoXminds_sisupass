@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -49,9 +50,14 @@ interface FormConfig {
 interface DynamicFormProps {
   config: FormConfig;
   onSubmit: (data: Record<string, any>) => void | Promise<void>;
+  submitButtonText?: string;
 }
 
-export function DynamicForm({ config, onSubmit }: DynamicFormProps) {
+export function DynamicForm({
+  config,
+  onSubmit,
+  submitButtonText = "Submit",
+}: DynamicFormProps) {
   const {
     control,
     errors,
@@ -84,7 +90,7 @@ export function DynamicForm({ config, onSubmit }: DynamicFormProps) {
       case "tel":
       case "date":
         return (
-          <div key={field.name} className="col-span-6 sm:col-span-3">
+          <div key={field.name} className="col-span-6  flex flex-col gap-3">
             <Label
               htmlFor={fieldId}
               className={cn(hasError && "text-destructive")}
@@ -120,7 +126,7 @@ export function DynamicForm({ config, onSubmit }: DynamicFormProps) {
 
       case "textarea":
         return (
-          <div key={field.name} className="col-span-6">
+          <div key={field.name} className="col-span-6 flex flex-col gap-3">
             <Label
               htmlFor={fieldId}
               className={cn(hasError && "text-destructive")}
@@ -156,7 +162,7 @@ export function DynamicForm({ config, onSubmit }: DynamicFormProps) {
 
       case "select":
         return (
-          <div key={field.name} className="col-span-6 sm:col-span-3">
+          <div key={field.name} className="col-span-6 flex flex-col gap-3">
             <Label
               htmlFor={fieldId}
               className={cn(hasError && "text-destructive")}
@@ -176,7 +182,7 @@ export function DynamicForm({ config, onSubmit }: DynamicFormProps) {
                   onValueChange={controllerField.onChange}
                 >
                   <SelectTrigger
-                    className={cn(
+                    className={cn("w-full",
                       hasError && "border-destructive focus:ring-destructive"
                     )}
                   >
@@ -204,7 +210,7 @@ export function DynamicForm({ config, onSubmit }: DynamicFormProps) {
 
       case "file":
         return (
-          <div key={field.name} className="col-span-6 sm:col-span-3">
+          <div key={field.name} className="col-span-6 flex flex-col gap-3">
             <Label
               htmlFor={fieldId}
               className={cn(hasError && "text-destructive")}
@@ -248,16 +254,16 @@ export function DynamicForm({ config, onSubmit }: DynamicFormProps) {
   };
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader>
+    <Card className="w-full max-w-4xl mx-auto shadow-none border-0">
+      <CardHeader className=" px-2">
         <CardTitle className="text-2xl font-bold">{config.title}</CardTitle>
         <CardDescription>{config.description}</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className=" px-2">
         <form onSubmit={handleSubmit} className="space-y-8">
           {config.sections.map((section, sectionIndex) => (
             <div key={sectionIndex} className="space-y-4">
-              <h3 className="text-lg font-semibold text-foreground border-b pb-2">
+              <h3 className="text-md font-semibold text-foreground border-b pb-2">
                 {section.title}
               </h3>
               <div className="grid grid-cols-6 gap-4">
@@ -273,7 +279,7 @@ export function DynamicForm({ config, onSubmit }: DynamicFormProps) {
               className="px-8"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Submitting..." : "Submit Application"}
+              {isSubmitting ? "Submitting..." : submitButtonText}
             </Button>
           </div>
         </form>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -8,6 +9,26 @@ import { Badge } from "@/components/ui/badge";
 import { Clock, DollarSign } from "lucide-react";
 import { gql, useQuery, useMutation } from "@apollo/client";
 import client from "@/lib/apolloClient";
+import {
+  MiniCalendar,
+  MiniCalendarDay,
+  MiniCalendarDays,
+  MiniCalendarNavigation,
+} from "./ui/mini-calendar";
+import { set } from "date-fns";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import { DynamicForm } from "./ui/dynamic-form";
+
+const GET_SLOT_DETAILS = gql`
+  query GetSlotDetails($id: UUID!) {
+    slotById(id: $id) {
+      id
+      title
+      description
+      fields
+    }
+  }
+`;
 
 const GET_AVAILABLE_SCHEDULES = gql`
   query GetAvailableSchedules($slotId: ID!) {
@@ -27,11 +48,13 @@ const CREATE_BOOKING = gql`
     $scheduleId: ID!
     $desiredTime: DateTime
     $userWalletId: ID
+    $details: JSONString
   ) {
     createBooking(
       scheduleId: $scheduleId
       desiredTime: $desiredTime
       userWalletId: $userWalletId
+      details: $details
     ) {
       booking {
         id
@@ -77,6 +100,8 @@ export function ScheduleCalendar({
   );
   const [selectedSchedule, setSelectedSchedule] = useState<any>(null);
   const [selectedTime, setSelectedTime] = useState<string>("");
+  const [showFormDialog, setShowFormDialog] = useState(false);
+  const [formConfig, setFormConfig] = useState<any>(null);
 
   const {
     data: schedulesData,
@@ -88,6 +113,12 @@ export function ScheduleCalendar({
     client,
   });
 
+  const { data: slotData } = useQuery(GET_SLOT_DETAILS, {
+    variables: { id: slotId },
+    fetchPolicy: "cache-and-network",
+    client,
+  });
+
   const [createBooking, { loading: bookingLoading }] = useMutation(
     CREATE_BOOKING,
     {
@@ -95,25 +126,49 @@ export function ScheduleCalendar({
         if (data.createBooking.booking) {
           onBookingComplete?.(data.createBooking.booking);
           refetch(); // Refresh schedules after booking
+          setShowFormDialog(false); // Close form dialog
         }
       },
       client,
     }
   );
-
   const availableSchedules =
     schedulesData?.slotSchedules?.filter(
       (schedule: any) => schedule.available
     ) || [];
 
-  const handleBooking = async () => {
+  const handleBookingClick = () => {
+    if (slotData?.slotById?.fields) {
+      try {
+        const fields = JSON.parse(slotData.slotById.fields);
+        if (fields && fields.length > 0) {
+          setFormConfig({
+            title: slotData.slotById.title,
+            description: "Please fill out the required information",
+            sections: fields,
+          });
+          setShowFormDialog(true);
+          return;
+        }
+      } catch (error) {
+        console.error("Error parsing slot fields:", error);
+      }
+    }
+
+    handleBooking();
+  };
+
+  const handleFormSubmit = (formData: Record<string, any>) => {
+    handleBooking(formData);
+  };
+
+  const handleBooking = async (formData?: Record<string, any>) => {
     if (!selectedSchedule) return;
 
     const variables: any = {
       scheduleId: selectedSchedule.id,
     };
 
-    // For flexible schedules, include desired time
     if (selectedSchedule.flexible && selectedDate && selectedTime) {
       const [hours, minutes] = selectedTime.split(":");
       const desiredDateTime = new Date(selectedDate);
@@ -122,6 +177,10 @@ export function ScheduleCalendar({
         Number.parseInt(minutes)
       );
       variables.desiredTime = desiredDateTime.toISOString();
+    }
+
+    if (formData) {
+      variables.details = JSON.stringify(formData);
     }
 
     try {
@@ -147,11 +206,21 @@ export function ScheduleCalendar({
   return (
     <div className="space-y-6">
       {/* Calendar */}
-      <Card>
+
+      <MiniCalendar value={selectedDate} onValueChange={setSelectedDate}>
+        <MiniCalendarNavigation direction="prev" />
+        <MiniCalendarDays>
+          {(date) => <MiniCalendarDay date={date} key={date.toISOString()} />}
+        </MiniCalendarDays>
+        <MiniCalendarNavigation direction="next" />
+      </MiniCalendar>
+      {/* <Card>
         <CardHeader>
           <CardTitle>Select Date</CardTitle>
         </CardHeader>
         <CardContent>
+          
+
           <Calendar
             mode="single"
             selected={selectedDate}
@@ -160,10 +229,10 @@ export function ScheduleCalendar({
             className="rounded-md border"
           />
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* Available Schedules */}
-      <Card>
+      <Card className="shadow-none rounded-mds">
         <CardHeader>
           <CardTitle>Available Time Slots</CardTitle>
         </CardHeader>
@@ -240,7 +309,7 @@ export function ScheduleCalendar({
       {/* Booking Button */}
       {selectedSchedule && (
         <Button
-          onClick={handleBooking}
+          onClick={handleBookingClick}
           disabled={
             bookingLoading || (selectedSchedule.flexible && !selectedTime)
           }
@@ -252,6 +321,18 @@ export function ScheduleCalendar({
             : `Book for $${selectedSchedule.price}`}
         </Button>
       )}
+
+      <Dialog open={showFormDialog} onOpenChange={setShowFormDialog}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          {formConfig && (
+            <DynamicForm
+              config={formConfig}
+              onSubmit={handleFormSubmit}
+              submitButtonText={`Complete Booking for Rs.${selectedSchedule?.price}`}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -42,6 +42,10 @@ const GET_SLOTS = gql`
       id
       bookingDate
       status
+      slotName
+      schedule {
+        startTime
+      }
     }
   }
 `;
@@ -98,19 +102,23 @@ export default function Slots() {
         <ScrollArea className="w-full whitespace-nowrap">
           <div className="flex w-max space-x-4">
             {trending.map((slot: any) => (
-              <Link key={slot.id} href={`/sisu-slots/${category}/${slot.id}`} className="flex w-[300px]">
+              <Link
+                key={slot.id}
+                href={`/sisu-slots/${category}/${slot.id}`}
+                className="flex w-[300px]"
+              >
                 <TicketCard className="max-w-[300px]">
                   <TicketCardBody
                     imageSrc={slot.coverImage || fallbackImage}
                     badgeText="VIP"
                     badgeVariant="destructive"
-                ></TicketCardBody>
-                <TicketCardFooter
-                  title={slot.title}
-                  description={slot.description?.about || ""}
-                  badgeText="$99"
-                />
-              </TicketCard>
+                  ></TicketCardBody>
+                  <TicketCardFooter
+                    title={slot.title}
+                    description={slot.description?.about || ""}
+                    badgeText="$99"
+                  />
+                </TicketCard>
               </Link>
             ))}
           </div>

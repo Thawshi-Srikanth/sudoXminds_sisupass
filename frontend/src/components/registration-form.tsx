@@ -118,7 +118,11 @@ export default function Registration() {
       </div>
 
       <div className="col-span-6 flex flex-col px-2 justify-between gap-3">
-        <DynamicForm config={formConfig} onSubmit={handleFormSubmit} />
+        <DynamicForm
+          config={formConfig}
+          onSubmit={handleFormSubmit}
+          
+        />
       </div>
     </div>
   );

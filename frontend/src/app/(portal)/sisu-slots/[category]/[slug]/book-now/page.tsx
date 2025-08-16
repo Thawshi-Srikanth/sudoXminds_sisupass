@@ -10,7 +10,7 @@ import { ScheduleCalendar } from "@/components/schedule-calendar";
 export default function RegisterPage() {
   const params = useParams();
   const router = useRouter();
-  const { slug } = params;
+  const { category, slug } = params;
   const [bookingSuccess, setBookingSuccess] = useState<any>(null);
 
   const handleBookingComplete = (booking: any) => {
@@ -18,7 +18,7 @@ export default function RegisterPage() {
   };
 
   const handleBackToSlot = () => {
-    router.push(`/slots/${slug}`);
+    router.push(`/sisu-slots/${category}/${slug}`);
   };
 
   if (bookingSuccess) {
@@ -44,22 +44,20 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
-        <Button variant="ghost" size="sm" onClick={handleBackToSlot}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Slot
-        </Button>
-        <h1 className="text-2xl font-bold">Slot Registration</h1>
-      </div>
+    <div className="grid grid-cols-6 gap-x-4 gap-y-6 p-6 mb-30">
+      <div className="col-span-6 flex flex-col justify-between gap-3">
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-6">
+          <h1 className="text-2xl font-bold">Slot Registration</h1>
+        </div>
 
-      {/* Content */}
-      <div className="max-w-2xl mx-auto">
-        <ScheduleCalendar
-          slotId={slug as string}
-          onBookingComplete={handleBookingComplete}
-        />
+        {/* Content */}
+        <div className="max-w-2xl mx-auto">
+          <ScheduleCalendar
+            slotId={slug as string}
+            onBookingComplete={handleBookingComplete}
+          />
+        </div>
       </div>
     </div>
   );

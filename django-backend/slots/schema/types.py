@@ -16,9 +16,20 @@ class SlotNode(DjangoObjectType):
 
 
 class BookingNode(DjangoObjectType):
+    slot_name = graphene.String()
+    start_time = graphene.String()
+
     class Meta:
         model = Booking
         fields = "__all__"
+
+    def resolve_slot_name(self, info):
+        # Access the related slot title
+        return self.schedule.slot.title if self.schedule else None
+
+    def resolve_slot_time(self, info):
+        # Access the related slot time
+        return self.schedule.start_time if self.schedule else None
 
 
 class SlotScheduleType(DjangoObjectType):
