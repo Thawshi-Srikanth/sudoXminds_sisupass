@@ -2,7 +2,6 @@
 "use client";
 
 import { useState } from "react";
-import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,8 +14,7 @@ import {
   MiniCalendarDays,
   MiniCalendarNavigation,
 } from "./ui/mini-calendar";
-import { set } from "date-fns";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
 import { DynamicForm } from "./ui/dynamic-form";
 
 const GET_SLOT_DETAILS = gql`

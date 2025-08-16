@@ -84,7 +84,7 @@ export default function TopUpPage() {
 
       const tx = data?.createTransaction?.transaction;
 
-       if (tx?.status === "COMPLETED") {
+      if (tx?.status === "COMPLETED") {
         toast.success("Top-up successful!");
         await refetch();
         router.push(
@@ -93,6 +93,7 @@ export default function TopUpPage() {
       } else {
         toast.error("Top-up failed. Please try again.");
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       toast.error(err.message || "Something went wrong");
     } finally {

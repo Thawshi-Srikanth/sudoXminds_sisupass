@@ -23,7 +23,6 @@ import {
 import { ComboBox } from "@/components/ui/combobox";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Spinner } from "@/components/ui/spinner";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const GET_PASS_DATA = gql`
@@ -246,7 +245,12 @@ export default function PassCard({
         </CardContent>
 
         <CardFooter className="px-0">
-          <Button onClick={onCreatePass} variant="secondary" size="lg" className="w-full">
+          <Button
+            onClick={onCreatePass}
+            variant="secondary"
+            size="lg"
+            className="w-full"
+          >
             Create Pass
           </Button>
         </CardFooter>

@@ -16,10 +16,9 @@ export default function AuthPage() {
   const isSignIn = mode === "signin";
   const router = useRouter();
 
-  const GOOGLE_AUTH_CLIENT_ID =
-    "167431025530-ardvei2ptlk4gd4u6r81k7mp263f7p1j.apps.googleusercontent.com";
+  const GOOGLE_AUTH_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
 
-  const handleGoogleSignIn = async (response) => {
+  const handleGoogleSignIn = async (response: { access_token: string }) => {
     try {
       await googleLogin(response.access_token);
 

@@ -20,7 +20,7 @@ interface NfcQrDrawerProps {
   serverQrData: string;
 }
 
-export function NfcQrDrawer({ serverNfcData, serverQrData }: NfcQrDrawerProps) {
+export function NfcQrDrawer({ serverQrData }: NfcQrDrawerProps) {
   return (
     <Drawer>
       <DrawerTrigger asChild>

@@ -1,7 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useParams } from "next/navigation";
-import Image from "next/image";
 import { gql, useQuery } from "@apollo/client";
 import client from "@/lib/apolloClient";
 import { useState } from "react";
@@ -76,7 +76,6 @@ export default function Slots() {
   const categoryName =
     data?.slotTypes.find((t: any) => t.id === category)?.name || category;
   const trending = data?.trendingSlots || [];
-  const slots = data?.slotsByType || [];
   const upcoming = data?.upcomingBookings || [];
 
   const fallbackImage = "/static/images/card-noise.png";

@@ -1,10 +1,10 @@
 import axios from "axios";
 
-const API_BASE = "http://192.168.142.225:8000/auth";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000";
 
 export async function login(email: string, password: string) {
   const res = await axios.post(
-    `${API_BASE}/login/`,
+    `${API_BASE}/auth/login/`,
     { email, password },
     { withCredentials: true }
   );
@@ -12,13 +12,13 @@ export async function login(email: string, password: string) {
 }
 
 export async function signup(
-  username:string,
+  username: string,
   email: string,
   password: string,
   password2: string
 ) {
   const res = await axios.post(
-    `${API_BASE}/registration/`,
+    `${API_BASE}/auth/registration/`,
     { username, email, password, password2 },
     { withCredentials: true }
   );
@@ -26,12 +26,12 @@ export async function signup(
 }
 
 export async function logout() {
-  await axios.post(`${API_BASE}/logout/`, {}, { withCredentials: true });
+  await axios.post(`${API_BASE}/auth/logout/`, {}, { withCredentials: true });
 }
 
 export async function googleLogin(accessToken: string) {
   const res = await axios.post(
-    `${API_BASE}/google/`,
+    `${API_BASE}/auth/google/`,
     { access_token: accessToken },
     { withCredentials: true }
   );

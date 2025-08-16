@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
 import { StickyNavButton } from "./StickyNavButton";
 
 export const metadata: Metadata = {

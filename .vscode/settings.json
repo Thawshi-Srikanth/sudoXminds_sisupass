@@ -1,9 +1,13 @@
 {
     "cSpell.words": [
+        "allauth",
+        "corsheaders",
         "devcontainers",
         "psql",
         "sisu",
         "sisupass",
+        "SOCIALACCOUNT",
+        "STATICFILES",
         "Thawshi",
         "topup"
     ]
