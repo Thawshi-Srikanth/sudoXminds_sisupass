@@ -18,7 +18,7 @@ class SlotAdmin(ModelAdmin):
     # This makes the ManyToMany field appear as a dual list widget
     filter_horizontal = ('collaborators',)
 
-    readonly_fields = ["description", "action", "fields"]
+    #readonly_fields = ["description", "action", "fields"]
 
 
 @admin.register(Booking)

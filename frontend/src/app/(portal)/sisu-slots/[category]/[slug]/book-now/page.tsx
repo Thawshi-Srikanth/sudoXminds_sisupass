@@ -6,6 +6,7 @@ import { ArrowLeft, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScheduleCalendar } from "@/components/schedule-calendar";
+import { QRCode } from "@/components/ui/qr-code";
 
 export default function RegisterPage() {
   const params = useParams();
@@ -22,15 +23,27 @@ export default function RegisterPage() {
   };
 
   if (bookingSuccess) {
+    const qrData = {
+      booking_id: bookingSuccess.id,
+      schedule_id: bookingSuccess.schedule.id,
+      slot_id: bookingSuccess.schedule.slot.id,
+      wallet_id: bookingSuccess.wallet.walletId,
+    };
     return (
       <div className="container mx-auto px-4 py-8">
-        <Card className="max-w-md mx-auto text-center">
+        <Card className="max-w-md mx-auto text-center border-secondary shadow-none">
           <CardContent className="pt-6">
-            <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+            <div className="w-full flex item-center justify-center mb-5">
+              <QRCode
+                className="w-48 h-48 rounded border bg-white p-4"
+                data={JSON.stringify(qrData)}
+              />
+            </div>
+
             <h2 className="text-2xl font-bold mb-2">Booking Confirmed!</h2>
             <p className="text-muted-foreground mb-4">
-              Your booking for "{bookingSuccess.schedule.slot.title}" has been
-              confirmed.
+              Your booking for &quot;{bookingSuccess.schedule.slot.title}&quot;
+              has been confirmed.
             </p>
             <div className="space-y-2">
               <Button onClick={handleBackToSlot} className="w-full">

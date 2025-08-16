@@ -44,7 +44,14 @@ const GET_SLOTS = gql`
       status
       slotName
       schedule {
+        id
         startTime
+        slot {
+          id
+        }
+      }
+      wallet {
+        walletId
       }
     }
   }
