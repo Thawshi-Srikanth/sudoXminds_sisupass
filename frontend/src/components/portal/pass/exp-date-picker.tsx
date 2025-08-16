@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { CalendarIcon, ChevronDownIcon } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -12,10 +12,24 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns"
+import { format } from "date-fns";
 
-export function ExpDatePicker() {
-  const [date, setDate] = React.useState<Date | undefined>(undefined);
+interface ExpDatePickerProps {
+  value?: string; // ISO string date
+  onChange?: (value: string) => void;
+}
+
+export function ExpDatePicker({ value, onChange }: ExpDatePickerProps) {
+  const [date, setDate] = React.useState<Date | undefined>(
+    value ? new Date(value) : undefined
+  );
+
+  const handleSelect = (selected: Date | undefined) => {
+    setDate(selected);
+    if (selected && onChange) {
+      onChange(selected.toISOString());
+    }
+  };
 
   return (
     <div className="flex flex-col gap-3">
@@ -39,7 +53,7 @@ export function ExpDatePicker() {
           <Calendar
             mode="single"
             selected={date}
-            onSelect={setDate}
+            onSelect={handleSelect}
             autoFocus
           />
         </PopoverContent>

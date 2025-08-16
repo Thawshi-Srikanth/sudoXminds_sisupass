@@ -1,0 +1,24 @@
+{% load static %}
+<div class="unfold-card p-4 mb-4">
+  <h3>Transaction Charts</h3>
+  <canvas id="transactionChart" width="400" height="200"></canvas>
+</div>
+
+<script src="{% static 'js/chart.min.js' %}"></script>
+<script>
+  const ctx = document.getElementById('transactionChart').getContext('2d');
+  const chartData = {
+      labels: [{% for ttype in types %}'{{ ttype }}',{% endfor %}],
+      datasets: [{
+          label: 'Transactions by Type',
+          data: [{% for count in counts %}{{ count }},{% endfor %}],
+          backgroundColor: ['#4caf50', '#f44336', '#ff9800']
+      }]
+  };
+
+  new Chart(ctx, {
+      type: 'bar',
+      data: chartData,
+      options: { responsive: true }
+  });
+</script>

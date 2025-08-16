@@ -1,0 +1,69 @@
+{% extends "unfold/layouts/base.html" %}
+{% load unfold i18n admin_urls %}
+
+{% block breadcrumbs %}
+<div class="px-4">
+    <div class="container mb-6 mx-auto -my-3 lg:mb-12">
+        <ul class="flex flex-wrap">
+            {% url 'admin:index' as link %}
+            {% trans 'Home' as name %}
+            {% include 'unfold/helpers/breadcrumb_item.html' with link=link name=name %}
+
+            {% url 'admin:wallet_wallet_changelist' as link %}
+            {% trans 'Wallets' as name %}
+            {% include 'unfold/helpers/breadcrumb_item.html' with link=link name=name %}
+
+            {% trans 'Dashboard' as name %}
+            {% include 'unfold/helpers/breadcrumb_item.html' with name=name %}
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">{% trans "Wallet Dashboard" %}</h1>
+
+{% tab_list "wallets" %}
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="p-4 bg-white shadow rounded">
+        <h2 class="font-semibold mb-2">{% trans "Transactions (Last 7 Days)" %}</h2>
+        <canvas id="transactionsChart"></canvas>
+    </div>
+
+    <div class="p-4 bg-white shadow rounded">
+        <h2 class="font-semibold mb-2">{% trans "New Wallets (Last 7 Days)" %}</h2>
+        <canvas id="walletsChart"></canvas>
+    </div>
+
+    <div class="p-4 bg-white shadow rounded">
+        <h2 class="font-semibold mb-2">{% trans "Pass Bookings (Last 7 Days)" %}</h2>
+        <canvas id="passesChart"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+function renderChart(canvasId, data) {
+    const ctx = document.getElementById(canvasId).getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.map(d => d.date),
+            datasets: [{ label: 'Count', data: data.map(d => d.count), backgroundColor: 'rgba(54, 162, 235, 0.6)' }]
+        },
+        options: { responsive: true }
+    });
+}
+
+const transactionsData = {{ transactions|safe }};
+const walletsData = {{ wallets|safe }};
+const passesData = {{ passes|safe }};
+
+function parseData(data, key) { return data.map(item => ({ date: item[key], count: item.count })); }
+
+renderChart('transactionsChart', parseData(transactionsData, 'transaction_date__date'));
+renderChart('walletsChart', parseData(walletsData, 'created_at__date'));
+renderChart('passesChart', parseData(passesData, 'wallet__created_at__date'));
+</script>
+{% endblock %}
