@@ -90,7 +90,6 @@ export const TransactionList = ({ limit }: { limit?: number }) => {
         <ScrollArea className="h-[350px] w-full">
           <div className="flex flex-col divide-y w-full gap-4">
             {transactions.map((tx) => {
-              const isExpense = tx.type === "spend" || tx.type === "transfer";
               const amountSign = tx.type === "topup" ? "+" : "-";
               const amountColor =
                 tx.type === "topup" ? "text-green-600" : "text-red-600";

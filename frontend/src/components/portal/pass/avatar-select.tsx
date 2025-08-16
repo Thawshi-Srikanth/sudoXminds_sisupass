@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { CheckIcon, PlusIcon, XIcon, ChevronDown } from "lucide-react";
+import { CheckIcon, PlusIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AvatarStack } from "@/components/ui/avatar-stack";
 

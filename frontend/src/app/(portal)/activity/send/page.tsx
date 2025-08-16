@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { gql, useMutation, useQuery } from "@apollo/client";
@@ -49,11 +50,7 @@ const GET_PASS_WALLETS = gql`
 `;
 
 const SEND_MONEY_MUTATION = gql`
-  mutation SendMoney(
-    $toWalletId: ID
-    $amount: Decimal!
-    $note: String
-  ) {
+  mutation SendMoney($toWalletId: ID, $amount: Decimal!, $note: String) {
     createTransaction(
       toWalletId: $toWalletId
       amount: $amount
@@ -125,7 +122,6 @@ export default function SendPage() {
       });
 
       const tx = data?.createTransaction?.transaction;
-  
 
       if (tx?.status === "COMPLETED") {
         toast.success("Transfer successful!");

@@ -44,7 +44,7 @@ export default function Home() {
   );
 
   const buildPassDetailsInput = () => {
-    return Object.entries(selectedPassData).map(([passName, pass]) => ({
+    return Object.entries(selectedPassData).map(([, pass]) => ({
       categoryId: pass.categoryId.toString(),
       fromLocationId: pass.from ? parseInt(pass.from) : null,
       toLocationId: pass.to ? parseInt(pass.to) : null,

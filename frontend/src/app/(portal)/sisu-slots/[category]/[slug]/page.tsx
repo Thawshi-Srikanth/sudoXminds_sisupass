@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
@@ -83,7 +84,6 @@ export default function SlotDetail() {
     ? new Date(desc.event.start_date)
     : null;
   const endDate = desc?.event?.end_date ? new Date(desc.event.end_date) : null;
-  const location = desc?.location || null;
 
   return (
     <>

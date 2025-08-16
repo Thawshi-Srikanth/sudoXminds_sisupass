@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -248,8 +249,6 @@ export const TransactionList = ({ limit }: { limit?: number }) => {
                 </div>
               ) : (
                 filteredTransactions.map((tx) => {
-                  const isExpense =
-                    tx.type === "spend" || tx.type === "transfer";
                   const amountSign = tx.type === "topup" ? "+" : "-";
                   const amountColor =
                     tx.type === "topup" ? "text-green-600" : "text-red-600";

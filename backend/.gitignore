@@ -1,43 +1,84 @@
-# Binaries for programs and plugins
-/bin/
-/tmp/
-/out/
-/*.exe
-/*.exe~
-/*.dll
-/*.so
-/*.dylib
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.so
 
-# Test binaries
-*.test
-
-# Output of the go coverage tool
-*.out
-
-# Dependency directories (remove the comment if you use modules)
-vendor/
-
-# Go module files
-go.sum
-
-# IDE/editor files
-.vscode/
-.idea/
-*.swp
-*.swo
-*.sublime-project
-*.sublime-workspace
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Logs and temp files
+# Django
 *.log
-*.tmp
+*.pot
+*.py[cod]
+*.sqlite3
+db.sqlite3
+*.pyc
+*.pyo
+*.pyd
+*.coverage
+*.mo
+*.DS_Store
 
-# Docker / Devcontainer
-.dockerignore
-.devcontainer/devcontainer.json
-.tmp/
-api
+# Environment
+.env
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# PyCharm
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# Static and media
+/staticfiles/
+/media/
+
+# Django migrations
+*/migrations/*.pyc
+*/migrations/*.pyo
+*/migrations/__pycache__/
+
+# Coverage reports
+htmlcov/
+.coverage
+.tox/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Pytest
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Celery
+celerybeat-schedule
+celerybe
