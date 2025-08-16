@@ -23,7 +23,8 @@ class WalletQuery(graphene.ObjectType):
     @login_required
     def resolve_my_pass_wallets(root, info):
         user = info.context.user
-        main_wallet = Wallet.objects.filter(user=user, wallet_type='main').first()
+        main_wallet = Wallet.objects.filter(
+            user=user, wallet_type='main').first()
         if not main_wallet:
             return []
         return Wallet.objects.filter(parent_wallet=main_wallet, wallet_type='pass')
@@ -55,7 +56,8 @@ class PassQuery(graphene.ObjectType):
         ).prefetch_related(
             "allowed_locations"
         ).filter(wallet__user=user)
-    
+
+
 class TransactionQuery(graphene.ObjectType):
     user_transactions = graphene.List(
         TransactionType,
@@ -74,7 +76,7 @@ class TransactionQuery(graphene.ObjectType):
 
         # Step 3: Combine all wallet IDs
         all_wallet_ids = list(user_wallets.values_list('wallet_id', flat=True)) + \
-                         list(child_wallets.values_list('wallet_id', flat=True))
+            list(child_wallets.values_list('wallet_id', flat=True))
 
         # Step 4: Get transactions where from_wallet OR to_wallet belongs to any of these wallets
         transactions = Transaction.objects.filter(

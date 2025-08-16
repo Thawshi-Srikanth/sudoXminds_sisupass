@@ -14,6 +14,7 @@ class TransactionType(DjangoObjectType):
         model = Transaction
         fields = "__all__"  # Return all fields
 
+
 class LocationTypeType(DjangoObjectType):
     class Meta:
         model = LocationType

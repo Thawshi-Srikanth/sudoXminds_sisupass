@@ -20,15 +20,15 @@ const GET_SLOT_BY_ID = gql`
 `;
 
 export default function Home() {
-
   const params = useParams();
-    const { slug } = params;
-  
+  const { slug } = params;
+
   const { data, loading, error } = useQuery(GET_SLOT_BY_ID, {
     client,
     variables: { id: slug },
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [formConfig, setFormConfig] = useState<any>(null);
   const [slotInfo, setSlotInfo] = useState<{
     title: string;
@@ -63,11 +63,12 @@ export default function Home() {
         title: data.slotById.title,
         description: descriptionText,
         type: "object",
-        sections: JSON.parse(data.slotById.fields) || [], // assuming DB stores it in DynamicForm format
+        sections: JSON.parse(data.slotById.fields) || [],
       });
     }
   }, [data]);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleFormSubmit = async (formData: Record<string, any>) => {
     console.log("Form submitted:", formData);
     alert("Form submitted successfully!");
