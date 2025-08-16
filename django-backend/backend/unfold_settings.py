@@ -86,6 +86,7 @@ UNFOLD = {
                     {"title": _("Slot Types"), "link": reverse_lazy("admin:slots_slottype_changelist")},
                     {"title": _("Slots"), "link": reverse_lazy("admin:slots_slot_changelist")},
                     {"title": _("Bookings"), "link": reverse_lazy("admin:slots_booking_changelist")},
+                    {"title": _("Schedules"), "link": reverse_lazy("admin:slots_slotschedule_changelist")},
                 ],
             },
         ],

@@ -40,11 +40,6 @@ const GET_SLOTS = gql`
     }
     upcomingBookings {
       id
-      slot {
-        id
-        title
-        coverImage
-      }
       bookingDate
       status
     }

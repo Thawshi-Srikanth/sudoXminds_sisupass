@@ -1,9 +1,4 @@
-import {
-  ArrowUpRight,
-  DollarSign,
-  Wallet,
-  CalendarClock,
-} from "lucide-react";
+import { ArrowUpRight, DollarSign, Wallet, CalendarClock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import { TransactionList } from "@/components/portal/transaction-list";
@@ -25,15 +20,19 @@ export default function Home() {
       </div>
       <div className="col-span-6 flex px-4 justify-between ">
         <div className="flex flex-col gap-2 items-center justify-center">
-          <Button variant="muted" size="icon" className=" size-12">
-            <ArrowUpRight width={24} height={24} />
-          </Button>
+          <Link href="/activity/send">
+            <Button variant="muted" size="icon" className=" size-12">
+              <ArrowUpRight width={24} height={24} />
+            </Button>
+          </Link>
           <p className=" text-sm tracking-wide text-center">Send</p>
         </div>
         <div className="flex flex-col gap-2 items-center justify-center">
-          <Button variant="muted" size="icon" className=" size-12">
-            <DollarSign width={24} height={24} />
-          </Button>
+          <Link href="/activity/topup">
+            <Button variant="muted" size="icon" className=" size-12">
+              <DollarSign width={24} height={24} />
+            </Button>
+          </Link>
           <p className=" text-sm tracking-wide text-center">Top Up</p>
         </div>
         <div className="flex flex-col gap-2 items-center justify-center">
@@ -46,15 +45,15 @@ export default function Home() {
         </div>
         <div className="flex flex-col gap-2 items-center justify-center">
           <Link href="sisu-slots">
-          <Button variant="secondary" size="icon" className=" w-24 h-12">
-            <CalendarClock width={24} height={24} />
-          </Button>
+            <Button variant="secondary" size="icon" className=" w-24 h-12">
+              <CalendarClock width={24} height={24} />
+            </Button>
           </Link>
           <p className=" text-sm tracking-wide text-center">SiSu Slots</p>
         </div>
       </div>
       <div className="col-span-6 flex flex-1 justify-between flex-col">
-        <TransactionList limit={5}/>
+        <TransactionList limit={5} />
       </div>
     </div>
   );

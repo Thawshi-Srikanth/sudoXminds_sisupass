@@ -1,4 +1,5 @@
 # slots/models.py
+from datetime import timedelta, datetime
 import uuid
 from django.db import models
 from django.conf import settings
@@ -59,10 +60,50 @@ class Slot(models.Model):
         return self.title
 
 
+class SlotSchedule(models.Model):
+    slot = models.ForeignKey(Slot, on_delete=models.CASCADE, related_name="schedules")
+    start_time = models.DateTimeField(blank=True, null=True)
+    duration_minutes = models.PositiveIntegerField(default=20)
+    grace_period_minutes = models.PositiveIntegerField(default=0)
+    recurring = models.BooleanField(default=False)
+    recurrence_pattern = models.JSONField(blank=True, null=True)
+    flexible = models.BooleanField(default=False)
+    price = models.DecimalField(max_digits=20, decimal_places=2, default=0)
+
+    class Meta:
+        ordering = ['start_time']
+
+    def is_available(self, desired_time=None):
+        """
+        Check if schedule is available.
+        - If flexible=True, desired_time must be provided
+        - If fixed, just check the scheduled start_time
+        """
+
+        if self.flexible:
+            if not desired_time:
+                raise ValueError("Must provide desired_time for flexible booking")
+            start = desired_time
+        else:
+            start = self.start_time
+
+        end = start + timedelta(minutes=self.duration_minutes + self.grace_period_minutes)
+
+        # Check for overlapping bookings
+        overlapping = Booking.objects.filter(
+            schedule__slot=self.slot,
+            schedule__flexible=self.flexible,
+            status__in=['pending', 'confirmed']
+        ).filter(
+            # Only for fixed slots, check overlap with schedule
+            schedule__start_time__lt=end if not self.flexible else datetime.max,
+            schedule__start_time__gte=start if not self.flexible else datetime.min
+        )
+
+        return not overlapping.exists()
+
+
 class Booking(models.Model):
-    """
-    Booking made by a wallet user for a slot.
-    """
     STATUS_CHOICES = [
         ('pending', 'Pending'),
         ('confirmed', 'Confirmed'),
@@ -70,8 +111,12 @@ class Booking(models.Model):
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
     wallet = models.ForeignKey("wallet.Wallet", on_delete=models.CASCADE, related_name="bookings")
-    slot = models.ForeignKey(Slot, on_delete=models.CASCADE, related_name="bookings")
+    schedule = models.ForeignKey("SlotSchedule", on_delete=models.CASCADE, null=True, related_name="schedule_bookings")
+
+    desired_time = models.DateTimeField(blank=True, null=True)  # only used for flexible slots
+
     booking_date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     details = models.JSONField(blank=True, null=True)
@@ -81,4 +126,4 @@ class Booking(models.Model):
         ordering = ['-booking_date']
 
     def __str__(self):
-        return f"Booking {self.id} for {self.slot.title}"
+        return f"Booking {self.id} for {self.schedule.slot.title} at {self.schedule.start_time}"

@@ -1,5 +1,5 @@
 import graphene
-from .types import SlotNode, BookingNode, SlotTypeNode
+from .types import SlotNode, BookingNode, SlotScheduleType, SlotTypeNode
 from slots.models import SlotType, Slot, Booking
 
 
@@ -44,6 +44,8 @@ class SlotQuery(graphene.ObjectType):
         BookingNode
     )
 
+    slot_schedules = graphene.List(SlotScheduleType, slot_id=graphene.ID(required=True))
+
     slot_by_id = graphene.Field(SlotNode, id=graphene.UUID(required=True))
 
     def resolve_slots_by_type(root, info, type_id, search=None):
@@ -63,3 +65,10 @@ class SlotQuery(graphene.ObjectType):
 
     def resolve_slot_by_id(root, info, id):
         return Slot.objects.filter(id=id).first()
+
+    def resolve_slot_schedules(self, info, slot_id):
+        try:
+            slot = Slot.objects.get(id=slot_id)
+            return slot.schedules.all()
+        except Slot.DoesNotExist:
+            return []

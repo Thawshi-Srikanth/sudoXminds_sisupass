@@ -1,7 +1,6 @@
 "use client";
 
-import { useParams } from "next/navigation";
-import Image from "next/image";
+import { useParams, useRouter } from "next/navigation";
 import { gql } from "@apollo/client";
 import client from "@/lib/apolloClient";
 
@@ -32,7 +31,8 @@ const GET_SLOT_BY_ID = gql`
 
 export default function SlotDetail() {
   const params = useParams();
-  const { slug } = params;
+  const router = useRouter();
+  const { category, slug } = params;
 
   const [slot, setSlot] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -67,11 +67,15 @@ export default function SlotDetail() {
     fetchSlot();
   }, [slug]);
 
+  const handleRegister = () => {
+    router.push(`/sisu-slots/${category}/${slug}/book-now`);
+  };
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error loading slot</p>;
   if (!slot) return <p>Slot not found</p>;
 
-  const fallbackImage = "/static/images/card-noise.png";
+  const fallbackImage = "/vibrant-music-festival.png";
   const isBooked = false;
 
   const desc = slot.description;
@@ -87,9 +91,9 @@ export default function SlotDetail() {
         {/* Header Slot Card */}
         <div className="col-span-6 flex flex-col justify-between sticky top-23">
           <TicketCard>
-            <TicketCardBody imageSrc={slot.coverImage || fallbackImage}>
-         
-            </TicketCardBody>
+            <TicketCardBody
+              imageSrc={slot.coverImage || fallbackImage}
+            ></TicketCardBody>
             <TicketCardFooter
               title={slot.title}
               description={desc?.about || ""}
@@ -134,65 +138,6 @@ export default function SlotDetail() {
             </div>
           </div>
         )}
-
-        {/* Location */}
-        {location && (
-          <div className="col-span-6 flex flex-col px-2 gap-3">
-            <h1 className="text-lg font-bold">Location</h1>
-            <div className="flex items-center w-full border h-16 p-2 pl-4 rounded-md gap-2">
-              <div className="flex flex-col justify-center space-y-1 flex-grow">
-                <span className="font-mono text-sm font-semibold">
-                  {location.address || location}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  Lat: {location.latitude || ""}, Lng:{" "}
-                  {location.longitude || ""}
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Other Description Fields */}
-        {desc?.schedules && (
-          <div className="col-span-6 flex flex-col gap-2">
-            <h2 className="text-lg font-semibold">Schedules</h2>
-            <pre className="text-xs bg-gray-50 p-2 rounded-md">
-              {JSON.stringify(desc.schedules, null, 2)}
-            </pre>
-          </div>
-        )}
-
-        {desc?.facilities && (
-          <div className="col-span-6 flex flex-col gap-2">
-            <h2 className="text-lg font-semibold">Facilities</h2>
-            <ul className="text-xs list-disc pl-4">
-              {desc.facilities.map((f: string, idx: number) => (
-                <li key={idx}>{f}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {/* Action Buttons */}
-        {slot.action && (
-          <div className="col-span-6 mt-4">
-            {slot.action.type === "form" && (
-              <Button size="lg" variant="secondary">
-                Open Form
-              </Button>
-            )}
-            {slot.action.type === "link" && (
-              <Button
-                size="lg"
-                variant="secondary"
-                onClick={() => window.open(slot.action.url, "_blank")}
-              >
-                {slot.action.label || "Go to Link"}
-              </Button>
-            )}
-          </div>
-        )}
       </div>
 
       {/* Bottom Action */}
@@ -207,8 +152,13 @@ export default function SlotDetail() {
             </Button>
           </>
         ) : (
-          <Button className="w-full" variant="secondary" size="lg">
-            Register
+          <Button
+            className="w-full"
+            variant="secondary"
+            size="lg"
+            onClick={handleRegister}
+          >
+            Book Now
           </Button>
         )}
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { gql, useMutation } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import client from "@/lib/apolloClient";
 import {
   CreditCard,
@@ -17,7 +17,17 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-// GraphQL mutation
+const MAIN_WALLET_QUERY = gql`
+  query {
+    myMainWallets {
+      walletId
+      balance
+      name
+      walletType
+    }
+  }
+`;
+
 const TOP_UP_MUTATION = gql`
   mutation TopUpWallet($amount: Decimal!, $note: String) {
     createTransaction(
@@ -38,13 +48,21 @@ const TOP_UP_MUTATION = gql`
   }
 `;
 
-export default function Home() {
+export default function TopUpPage() {
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const [topUpWallet, { loading, error }] = useMutation(TOP_UP_MUTATION, {
+  const {
+    data,
+    loading: walletLoading,
+    refetch,
+  } = useQuery(MAIN_WALLET_QUERY, {
+    client,
+  });
+
+  const [topUpWallet] = useMutation(TOP_UP_MUTATION, {
     client,
   });
 
@@ -59,17 +77,18 @@ export default function Home() {
     try {
       const { data } = await topUpWallet({
         variables: {
-          amount: parseFloat(amount),
+          amount: Number.parseFloat(amount),
           note: note || null,
         },
       });
 
       const tx = data?.createTransaction?.transaction;
 
-      if (tx?.status === "completed") {
+       if (tx?.status === "COMPLETED") {
         toast.success("Top-up successful!");
+        await refetch();
         router.push(
-          `/confirmation?transactionId=${tx.transactionId}&amount=${tx.amount}&newBalance=${tx.toWallet.balance}`
+          `/activity/confirmation?transactionId=${tx.transactionId}&amount=${tx.amount}&newBalance=${tx.toWallet.balance}`
         );
       } else {
         toast.error("Top-up failed. Please try again.");
@@ -80,6 +99,8 @@ export default function Home() {
       setIsLoading(false);
     }
   };
+
+  const wallet = data?.myMainWallets;
 
   return (
     <div className="grid grid-cols-6 gap-x-4 gap-y-6 p-6 w-full h-full">
@@ -92,18 +113,21 @@ export default function Home() {
         <CreditCard>
           <CreditCardBack className="bg-secondary text-background">
             <div className="flex h-full flex-col justify-between p-4">
-              <CreditCardName className="flex-1">Main Wallet</CreditCardName>
+              <CreditCardName className="flex-1">
+                {wallet?.name || "Main Wallet"}
+              </CreditCardName>
 
               <CreditCardBalance className="flex flex-col flex-1">
                 <span className="text-base tracking-wide opacity-90">
                   Balance
                 </span>
-                {/* Ideally query wallet balance from API */}
-                10,000
+                {walletLoading ? "Loading..." : wallet?.balance ?? "0.00"}
               </CreditCardBalance>
 
               <div className="flex justify-between gap-4">
-                <CreditCardExpiry>xxxx-xxxx-xxxxx-xxxxxx</CreditCardExpiry>
+                <CreditCardExpiry>
+                  {wallet?.walletId || "xxxx-xxxx-xxxx-xxxx"}
+                </CreditCardExpiry>
               </div>
             </div>
           </CreditCardBack>
