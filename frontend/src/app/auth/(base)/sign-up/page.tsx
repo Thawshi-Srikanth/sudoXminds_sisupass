@@ -33,7 +33,7 @@ export default function SigninPage() {
     );
     if (result.access) {
       // Redirect or set auth state
-      router.push("user-verification");
+      router.push("/auth/sign-up/user-verification");
     } else {
       console.log("Login failed", result);
     }

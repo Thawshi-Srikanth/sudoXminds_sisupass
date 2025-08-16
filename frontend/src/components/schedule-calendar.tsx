@@ -324,6 +324,7 @@ export function ScheduleCalendar({
 
       <Dialog open={showFormDialog} onOpenChange={setShowFormDialog}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogTitle>Complete Your Booking</DialogTitle>
           {formConfig && (
             <DynamicForm
               config={formConfig}
