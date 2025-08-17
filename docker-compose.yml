@@ -20,9 +20,9 @@ services:
   django:
     build:
       context: ./backend
-    command: bash /code/entrypoint.sh
+    command: bash /app/entrypoint.sh
     volumes:
-      - ./backend:/code
+      - ./backend:/app
     env_file:
       - ./backend/.env
     ports:
