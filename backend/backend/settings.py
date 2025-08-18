@@ -54,7 +54,7 @@ INSTALLED_APPS = [
     "graphql_jwt",
 
     "rest_framework",
-    "rest_framework.authkey",
+    "rest_framework.authtoken",
     "dj_rest_auth",
 
     "graphene_django",
